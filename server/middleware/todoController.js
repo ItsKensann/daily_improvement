@@ -128,7 +128,7 @@ const deleteTodo = async (req, res) => {
     }
 }
 
-modules.exports = {
+module.exports = {
     getTodos,
     createTodo,
     getTodo,

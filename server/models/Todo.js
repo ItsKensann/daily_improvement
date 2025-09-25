@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const todoSchema = new mongoose.Schema({
     title: {
-        ttpe: String,
+        type: String,
         required: [true, 'Todo title is required'],
         trim: true, // trim white space from both ends of string
         maxLength: [100, 'Title cannot exceed 100 characters']
@@ -22,7 +22,7 @@ const todoSchema = new mongoose.Schema({
         default: 'medium'
     },
     dueDate: {
-        type: Data
+        type: Date
     },
     // will need userID for authentication with login feature 
 }, {
