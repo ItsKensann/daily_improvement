@@ -16,10 +16,15 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     // Successful authentication, redirect to the Dashboard (frontend)
-    // For now, we redirect to a simple success page since Frontend isn't ready
-    res.redirect("http://localhost:5000/api/test-success");
+    res.redirect("http://localhost:5173/dashboard");
   }
 );
+
+// @desc    Get current logged in user
+// @route   GET /auth/current_user
+router.get("/current_user", (req, res) => {
+  res.send(req.user); // Passport attaches the user to the req object
+});
 
 // @desc    Logout user
 // @route   GET /auth/logout

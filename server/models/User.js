@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     preferences: {
-      theme: { type: String, default: "light" }, // 'light' or 'dark'
+      theme: { type: String, default: "dark" }, // 'light' or 'dark'
       dailyBriefingTime: { type: String, default: "09:00" }, // When to trigger the AI news
     },
     createdAt: {

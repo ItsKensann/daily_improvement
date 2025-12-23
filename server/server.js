@@ -51,11 +51,6 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 // app.use("/api/todos", todoRoutes);
 
-// Simple Route for testing
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
-
 // Test Route to confirm login worked
 app.get("/api/test-success", (req, res) => {
   if (req.user) {
