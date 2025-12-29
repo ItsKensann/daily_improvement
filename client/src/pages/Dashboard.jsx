@@ -6,7 +6,7 @@ function Dashboard() {
   // Consume context
   const { user, loading } = useContext(AuthContext);
 
-  // 1. Wait for loading to finish
+  // 1. Wait for loading to finish (will replace with proper loading screen)
   if (loading) return <div>Loading...</div>;
 
   // 2. If no user, kick them back to Landing (Protection)

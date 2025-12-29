@@ -1,27 +1,25 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const ThemeContext = createContext(null);
+const ThemeContext = createContext();
 
-export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("light");
+export function ThemeProvider({ children }) {
+  // This runs only once when the component mounts, ensuring the correct theme is loaded immediately, preventing the reset.
+  const [theme, setTheme] = useState(() => {
+    // Check if we are running in the browser
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
 
-  // useEffect that runs once for initial load
-  // Check local storage or system preference on initial load
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (systemPrefersDark) {
-      setTheme("dark");
+      // Return saved preference OR system preference OR default to 'light'
+      return savedTheme || (systemPrefersDark ? "dark" : "light");
     }
-  }, []);
+    return "light";
+  });
 
   useEffect(() => {
-    // Apply the class to the HTML tag whenever theme changes
+    // Apply the class and save to storage whenever theme changes
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
@@ -37,9 +35,8 @@ export const ThemeProvider = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}
 
-// Custom hook to use the context easily
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {

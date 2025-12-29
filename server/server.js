@@ -23,7 +23,7 @@ connectDB();
 const app = express();
 
 // middleware
-app.use(express.json());
+app.use(express.json()); // express intercepts incoming requests and parses the JSON string and turn into Javascript object
 app.use(
   cors({
     origin: "http://localhost:5173", // Vite default port

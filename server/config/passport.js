@@ -2,15 +2,14 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const mongoose = require("mongoose");
 const User = require("../models/User");
 
+// passport js redirects the user's browser to Google's login page
 module.exports = function (passport) {
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        // FIX 1: Use the full URL for the callback
         callbackURL: "http://localhost:5000/auth/google/callback",
-        // FIX 2: Define the scope directly here
         scope: ["profile", "email"],
       },
       async (accessToken, refreshToken, profile, done) => {
