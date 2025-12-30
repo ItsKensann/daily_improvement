@@ -13,7 +13,8 @@ dotenv.config();
 
 // import routes
 const authRoutes = require("./routes/auth");
-// const todoRoutes = require("./routes/todoRoutes");
+const taskRoutes = require("./routes/tasks");
+const { collection } = require("./models/Task");
 const PORT = process.env.PORT || 5000;
 
 // Passport config
@@ -39,6 +40,9 @@ app.use(
     secret: "keyboard cat", // Change this to a random string in production
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+    }),
   })
 );
 
@@ -49,7 +53,7 @@ app.use(passport.session());
 
 // routes
 app.use("/auth", authRoutes);
-// app.use("/api/todos", todoRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Test Route to confirm login worked
 app.get("/api/test-success", (req, res) => {

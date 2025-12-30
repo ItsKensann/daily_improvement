@@ -1,35 +1,89 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import api from "../api/axios";
 
 function Dashboard() {
-  // Consume context
-  const { user, loading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
 
-  // 1. Wait for loading to finish (will replace with proper loading screen)
-  if (loading) return <div>Loading...</div>;
+  // 1. Fetch Tasks on Load
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (user) {
+        const res = await api.get("/api/tasks");
+        setTasks(res.data);
+      }
+    };
+    fetchTasks();
+  }, [user]);
 
-  // 2. If no user, kick them back to Landing (Protection)
-  if (!user) return <Navigate to="/" />;
+  // 2. Function to Add Task
+  const addTask = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post("/api/tasks", {
+        title: newTask,
+        priority: "medium",
+      });
+      setTasks([res.data, ...tasks]); // Update UI instantly
+      setNewTask("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  // 3. Render the Dashboard
+  // 3. Function to Delete Task
+  const deleteTask = async (id) => {
+    try {
+      await api.delete(`/api/tasks/${id}`);
+      setTasks(tasks.filter((task) => task._id !== id)); // Remove from UI
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Dashboard</h1>
+    <div style={{ padding: "50px" }}>
+      <h1>My Tasks</h1>
 
-      <h2>Welcome back, {user.displayName}</h2>
+      {/* Simple Form */}
+      <form onSubmit={addTask} style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Add a new task..."
+          style={{ padding: "10px", width: "300px" }}
+        />
+        <button type="submit" style={{ padding: "10px" }}>
+          Add
+        </button>
+      </form>
 
-      {/* Visual Debugging: See all the data we have */}
-      <pre
-        style={{
-          textAlign: "left",
-          background: "#141414ff",
-          padding: "20px",
-          margin: "20px",
-        }}
-      >
-        {JSON.stringify(user, null, 2)}
-      </pre>
+      {/* Task List */}
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {tasks.map((task) => (
+          <li
+            key={task._id}
+            style={{
+              background: "#f4f4f4",
+              margin: "5px",
+              padding: "10px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <span>{task.title}</span>
+            <button
+              onClick={() => deleteTask(task._id)}
+              style={{ color: "red" }}
+            >
+              X
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

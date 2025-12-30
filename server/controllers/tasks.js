@@ -5,7 +5,7 @@ const Task = require("../models/Task");
 // @access  Private
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = (await Task.find({ user: req.user.id })).toSorted({
+    const tasks = await Task.find({ user: req.user.id }).sort({
       createdAt: -1,
     });
     res.json(tasks);
@@ -22,7 +22,7 @@ exports.createTask = async (req, res) => {
   try {
     const newTask = await Task.create({
       title: req.body.title,
-      priority: req.body.title || "medium",
+      priority: req.body.priority || "medium",
       category: req.body.category || "General",
       user: req.user.id,
     });
@@ -38,6 +38,7 @@ exports.createTask = async (req, res) => {
 // @access  Private
 exports.deleteTask = async (req, res) => {
   try {
+    // Find the task first
     const task = await Task.findById(req.params.id);
 
     if (!task) {
@@ -49,6 +50,7 @@ exports.deleteTask = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
+    // Tells mongoose to go look through the collecton and delete the document where the field _id matches this value
     await Task.deleteOne({ _id: req.params.id });
     res.json({ message: "Task removed" });
   } catch (err) {
