@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { TopNav } from "../components/TopNav";
+import { SideBar } from "../components/Sidebar";
 import api from "../api/axios";
 
 function Dashboard() {
@@ -35,8 +36,11 @@ function Dashboard() {
   const weeklyData = [];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <TopNav />
+    <div className="flex min-h-screen bg-background">
+      <SideBar />
+      <div className="min-w-0 flex-1">
+        <TopNav />
+      </div>
     </div>
   );
 }
