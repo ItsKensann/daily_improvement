@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   CheckSquare,
@@ -15,6 +15,8 @@ import { useSideBar } from "../context/SidebarContext";
 
 export function SideBar() {
   const { isCollapsed, toggleSidebar } = useSideBar();
+  const location = useLocation();
+  const pathname = location.pathname;
 
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -49,15 +51,23 @@ export function SideBar() {
       </div>
       <nav className="flex flex-col gap-2 px-3">
         {navItems.map((item) => {
+          const isActive = pathname === item.href;
+
           return (
             <Link
               key={item.href}
               to={item.href}
-              className={`flex items-center gap-3 p-3 rounded-lg hover:bg-accent ${
+              className={`flex items-center gap-3 p-3 py-2.5 font-serif text-sm transition-colors ${
                 isCollapsed ? "justify-center" : ""
-              }`}
+              }
+                ${
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-accent-foreground"
+                }
+              `}
             >
-              <item.icon />
+              <item.icon className="h-5 flex-shrink-0" />
               {!isCollapsed && <span>{item.label}</span>}
             </Link>
           );
