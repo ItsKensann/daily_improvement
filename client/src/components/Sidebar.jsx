@@ -8,9 +8,14 @@ import {
   BookOpen,
   Clock,
   PenLine,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
+import { useSideBar } from "../context/SidebarContext";
 
 export function SideBar() {
+  const { isCollapsed, toggleSidebar } = useSideBar();
+
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: PenLine, label: "Journal", href: "/journal" },
@@ -22,10 +27,41 @@ export function SideBar() {
   ];
 
   return (
-    <aside className="w-[228px] border-r border-border bg-background px-4 py-6">
-      <div></div>
-      <nav>
-        <Link to="/tasks">TEST</Link>
+    <aside
+      className={`border-r bg-background py-6 transition-all duration-300 ${
+        isCollapsed ? "w-[92px] px-3" : "w-[228px] px-4"
+      }`}
+    >
+      <div
+        className={`mb-12 flex items-center ${
+          isCollapsed ? "justify-center" : "justify-between px-4"
+        }`}
+      >
+        <h1 className={isCollapsed ? "hidden" : "font-serif text-lg"}>
+          Kaizen
+        </h1>
+        <button
+          onClick={toggleSidebar}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {isCollapsed ? <PanelLeft /> : <PanelLeftClose />}
+        </button>
+      </div>
+      <nav className="flex flex-col gap-2 px-3">
+        {navItems.map((item) => {
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={`flex items-center gap-3 p-3 rounded-lg hover:bg-accent ${
+                isCollapsed ? "justify-center" : ""
+              }`}
+            >
+              <item.icon />
+              {!isCollapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

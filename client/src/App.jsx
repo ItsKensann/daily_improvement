@@ -4,20 +4,23 @@ import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import { AuthProvider } from "./context/AuthContext";
-import "./index.css";
 import { ThemeProvider } from "./context/ThemeContext";
+import { SidebarProvider } from "./context/SidebarContext";
+import "./index.css";
 
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/tasks" element={<Tasks />} />
-          </Routes>
-        </BrowserRouter>
+        <SidebarProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/tasks" element={<Tasks />} />
+            </Routes>
+          </BrowserRouter>
+        </SidebarProvider>
       </ThemeProvider>
     </AuthProvider>
   );
