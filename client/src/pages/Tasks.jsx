@@ -50,45 +50,47 @@ function Tasks() {
       <SideBar />
       <div className="min-w-0 flex-1">
         <TopNav />
-        <h1>My Tasks</h1>
+        <div className="px-12 py-8">
+          <h1>My Tasks</h1>
 
-        {/* Simple Form */}
-        <form onSubmit={addTask} style={{ marginBottom: "20px" }}>
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            placeholder="Add a new task..."
-            style={{ padding: "10px", width: "300px" }}
-          />
-          <button type="submit" style={{ padding: "10px" }}>
-            Add
-          </button>
-        </form>
+          {/* Simple Form */}
+          <form onSubmit={addTask} style={{ marginBottom: "20px" }}>
+            <input
+              type="text"
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              placeholder="Add a new task..."
+              style={{ padding: "10px", width: "300px" }}
+            />
+            <button type="submit" style={{ padding: "10px" }}>
+              Add
+            </button>
+          </form>
 
-        {/* Task List */}
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {tasks.map((task) => (
-            <li
-              key={task._id}
-              style={{
-                background: "#f4f4f4",
-                margin: "5px",
-                padding: "10px",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <span>{task.title}</span>
-              <button
-                onClick={() => deleteTask(task._id)}
-                style={{ color: "red" }}
+          {/* Task List */}
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {tasks.map((task) => (
+              <li
+                key={task._id}
+                style={{
+                  background: "#f4f4f4",
+                  margin: "5px",
+                  padding: "10px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
               >
-                X
-              </button>
-            </li>
-          ))}
-        </ul>
+                <span>{task.title}</span>
+                <button
+                  onClick={() => deleteTask(task._id)}
+                  style={{ color: "red" }}
+                >
+                  X
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

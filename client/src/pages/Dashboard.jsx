@@ -49,6 +49,16 @@ function Dashboard() {
       <SideBar />
       <div className="min-w-0 flex-1">
         <TopNav />
+        <main className="px-12 py-8">
+          <div className="mb-10 space-y-3">
+            <h1 className="font-serif text-3xl tracking-tight text-muted-foreground">
+              {getGreeting()}.
+            </h1>
+            <p className="font-serif text-base text-muted-foreground">
+              Your singular focus today is: <b>focus</b>
+            </p>
+          </div>
+        </main>
       </div>
     </div>
   );
