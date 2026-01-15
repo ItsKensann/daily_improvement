@@ -23,9 +23,8 @@ export function SideBar() {
     { icon: PenLine, label: "Journal", href: "/journal" },
     { icon: CheckSquare, label: "Tasks", href: "/tasks" },
     { icon: Calendar, label: "Calendar", href: "/calendar" },
-    { icon: BarChart3, label: "Analytics", href: "/analytics" },
     { icon: BookOpen, label: "Library", href: "/library" },
-    { icon: Clock, label: "Focus Timer", href: "/focus" },
+    { icon: Clock, label: "Focus", href: "/focus" },
   ];
 
   return (

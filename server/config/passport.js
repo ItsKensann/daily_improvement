@@ -12,8 +12,8 @@ module.exports = function (passport) {
         callbackURL: "http://localhost:5000/auth/google/callback",
         scope: ["profile", "email"],
       },
+      // run this after google has authenticated the user
       async (accessToken, refreshToken, profile, done) => {
-        // ... (The rest of your code inside here remains exactly the same) ...
         const newUser = {
           googleId: profile.id,
           displayName: profile.displayName,
@@ -37,12 +37,14 @@ module.exports = function (passport) {
     )
   );
 
+  // passport uses serializeUser to persist user data
   // task the user id and turn it into a cookie,
   // cookie is the wristbrand/session for the user, as lng as the browser has this cookie, server knows you are logged in
   passport.serializeUser((user, done) => {
     done(null, user.id);
   });
 
+  // retrieve user data from session
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await User.findById(id);

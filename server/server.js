@@ -37,7 +37,7 @@ app.use(morgan("dev")); // Logs requests to the console
 // Sessions
 app.use(
   session({
-    secret: "keyboard cat", // Change this to a random string in production
+    secret: process.env.SESSION_SECRET, // Change this to a random string in production
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({

@@ -2,10 +2,11 @@ import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
+import { Navigate } from "react-router-dom";
 import api from "../api/axios";
 
 function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
 
   // useEffect to fetch tasks on load
@@ -18,6 +19,15 @@ function Dashboard() {
     };
     fetchTasks();
   }, [user]);
+
+  if (loading) {
+    // TODO change to loading screen
+    return <div>loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/" />;
+  }
 
   // Determine greeting based on time of day
   const getGreeting = () => {
@@ -32,7 +42,6 @@ function Dashboard() {
 
   // placeholders
   const briefingCards = [];
-
   const weeklyData = [];
 
   return (

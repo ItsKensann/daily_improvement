@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         // If error (401), user is not logged in, leave user as null
         console.log("Not logged in");
+        setUser(null);
       } finally {
         // Remove loading icon
         setLoading(false);
