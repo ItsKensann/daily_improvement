@@ -20,7 +20,7 @@ const TaskSchema = new mongoose.Schema(
 
     category: { type: String, default: "General" }, // e.g., "Coding", "Fitness"
 
-    dueDate: { type: Date },
+    dueDate: { type: Date, default: Date.now },
     completedAt: { type: Date }, // Crucial for "Yesterday's Review" AI generation
 
     // AI-generated subtasks (hidden by default in UI until expanded)

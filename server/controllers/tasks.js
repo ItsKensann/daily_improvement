@@ -24,6 +24,7 @@ exports.createTask = async (req, res) => {
       title: req.body.title,
       priority: req.body.priority || "medium",
       category: req.body.category || "General",
+      dueDate: req.body.dueDate,
       user: req.user.id,
     });
     res.json(newTask);
