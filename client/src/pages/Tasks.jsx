@@ -4,6 +4,7 @@ import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
 import { Plus, Calendar } from "lucide-react";
 import api from "../api/axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const priorityColors = {
   high: "bg-[#F51B2A]",
@@ -13,7 +14,6 @@ const priorityColors = {
 
 function Tasks() {
   const { user } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
   const [hoveredTask, setHoveredTask] = useState(null);
   const [newTask, setNewTask] = useState({
     title: "",
@@ -26,49 +26,56 @@ function Tasks() {
   const [activeView, setActiveView] = useState("Today");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isCreating, setIsCreating] = useState(false);
+  const queryClient = useQueryClient();
 
-  // 1. Fetch Tasks on Load
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (user) {
-        const res = await api.get("/api/tasks");
-        setTasks(res.data);
-      }
-    };
-    fetchTasks();
-  }, [user]);
+  // query function runs when compoent is mounted
+  const {
+    data: tasks = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["tasks"], // name of cache
+    queryFn: async () => {
+      const res = await api.get("/api/tasks");
+      return res.data;
+    },
+    enabled: !!user, // only run if user exists
+  });
 
-  // 2. Function to Add Task
-  const addTask = async (e) => {
-    const date = new Date().getDate();
-    e.preventDefault();
-    try {
-      const res = await api.post("/api/tasks", {
-        title: newTask.title,
-        priority: newTask.priority,
-        dueDate: newTask.dueDate,
-      });
-      setTasks([res.data, ...tasks]); // Update UI instantly
+  const addTaskMutation = useMutation({
+    mutationFn: async (taskData) => {
+      const res = await api.post("/api/tasks", taskData);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setIsCreating(false);
-      setNewTask({
-        title: "",
-        priority: "medium",
-        dueDate: "",
-      });
-    } catch (err) {
+      setNewTask({ title: "", priority: "medium", dueDate: "" });
+    },
+    onError: (err) => {
       console.error(err);
-    }
+    },
+  });
+
+  // Handler to call in your form
+  const handleAddTask = (e) => {
+    e.preventDefault();
+    addTaskMutation.mutate({
+      title: newTask.title,
+      priority: newTask.priority,
+      dueDate: newTask.dueDate,
+    });
   };
 
-  // 3. Function to Delete Task
-  const deleteTask = async (id) => {
-    try {
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id) => {
       await api.delete(`/api/tasks/${id}`);
-      setTasks(tasks.filter((task) => task._id !== id)); // Remove from UI
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    },
+    onSuccess: () => {
+      // refetch, update tasks cache
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
   const todayUpcoming = [
     { label: "Today", count: 5 },
@@ -170,7 +177,7 @@ function Tasks() {
                 >
                   {/* Button to remove task */}
                   <button
-                    onClick={() => deleteTask(task._id)}
+                    onClick={() => deleteTaskMutation.mutate(task._id)}
                     className={`h-4 w-4 rounded-full border-2 transition-colors ${
                       task.status === "complete"
                         ? "border-accent bg-accent"
@@ -220,7 +227,7 @@ function Tasks() {
                     placeholder="Task name..."
                     autoFocus
                     className="w-full bg-transparent"
-                    onKeyDown={(e) => e.key === "Enter" && addTask(e)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
                 </div>
               )}
