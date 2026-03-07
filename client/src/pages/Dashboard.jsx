@@ -9,17 +9,6 @@ function Dashboard() {
   const { user, loading } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
 
-  // useEffect to fetch tasks on load
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (user) {
-        const res = await api.get("/api/tasks");
-        setTasks(res.data);
-      }
-    };
-    fetchTasks();
-  }, [user]);
-
   if (loading) {
     // TODO change to loading screen
     return <div>loading...</div>;

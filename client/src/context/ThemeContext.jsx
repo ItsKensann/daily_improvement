@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
 
@@ -9,7 +9,7 @@ export function ThemeProvider({ children }) {
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("theme");
       const systemPrefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        "(prefers-color-scheme: dark)",
       ).matches;
 
       // Return saved preference OR system preference OR default to 'light'

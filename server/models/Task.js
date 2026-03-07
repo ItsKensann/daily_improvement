@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); // Retrieve mongoose instance connected to Atlast in server.js
 
 const TaskSchema = new mongoose.Schema(
   {
@@ -31,7 +31,8 @@ const TaskSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
+// Mongoose saves schema into its internal dictionary under the name "Task"
 module.exports = mongoose.model("Task", TaskSchema);
