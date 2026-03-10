@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useMemo } from "react";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
-import { Plus, Calendar } from "lucide-react";
+import { Plus, Calendar, X } from "lucide-react";
 import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -25,7 +25,7 @@ function Tasks() {
   );
   const [activeView, setActiveView] = useState("Today");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState(false); // used to display add task modal
   const queryClient = useQueryClient();
 
   // query function runs when compoent is mounted
@@ -168,7 +168,7 @@ function Tasks() {
 
             {/* Tasks list */}
             <div className="divide-y divide-border/50">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <div
                   key={task._id}
                   onMouseEnter={() => setHoveredTask(task._id)}
@@ -218,6 +218,7 @@ function Tasks() {
                 </button>
               ) : (
                 <div className="space-y-4">
+                  {/* Text input */}
                   <input
                     type="text"
                     value={newTask.title}
@@ -229,6 +230,38 @@ function Tasks() {
                     className="w-full bg-transparent"
                     onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
+                  {/* Select priority */}
+                  <div className="flex items-center gap-6"></div>
+
+                  {/* Calendar input */}
+                  <div className="flex items-center gap-2">
+                    <Calendar />
+                  </div>
+
+                  {/* Add task / cancel*/}
+                  <div className="flex items-center gap-4 pt-2">
+                    <button
+                      onClick={handleAddTask}
+                      disabled={!newTask.title.trim()}
+                      className="font-serif text-sm text-foreground transition-colors hover:text-foreground/80 disabled"
+                    >
+                      Add task
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsCreating(false);
+                        setNewTask({
+                          title: "",
+                          priority: "medium",
+                          dueDate: "",
+                        });
+                      }}
+                      className=""
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
