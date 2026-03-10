@@ -7,9 +7,9 @@ import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const priorityColors = {
-  high: "bg-[#F51B2A]",
-  medium: "bg-[#F5791B]",
-  low: "bg=[#F5E61B]",
+  high: "bg-[#d4a574]",
+  medium: "bg-[#a8b5a0]",
+  low: "bg-[#B8B3B2]",
 };
 
 function Tasks() {
@@ -49,7 +49,7 @@ function Tasks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      setIsCreating(false);
+      // setIsCreating(false);
       setNewTask({ title: "", priority: "medium", dueDate: "" });
     },
     onError: (err) => {
@@ -217,7 +217,7 @@ function Tasks() {
                   <span className="font-serif text-[15px]">Add new task</span>
                 </button>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 border p-2">
                   {/* Text input */}
                   <input
                     type="text"
@@ -227,15 +227,43 @@ function Tasks() {
                     }
                     placeholder="Task name..."
                     autoFocus
-                    className="w-full bg-transparent"
+                    className="w-full bg-transparent font-serif text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                     onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
                   {/* Select priority */}
-                  <div className="flex items-center gap-6"></div>
-
-                  {/* Calendar input */}
-                  <div className="flex items-center gap-2">
-                    <Calendar />
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif text-xs text-muted-foreground">
+                        Priority:
+                      </span>
+                      <div className="flex gap-1.5">
+                        {["low", "medium", "high"].map((p) => (
+                          <button
+                            key={p}
+                            onClick={() =>
+                              setNewTask({ ...newTask, priority: p })
+                            }
+                            className={`h-3 w-3 rounded-full transition-all ${priorityColors[p]} ${
+                              newTask.priority === p
+                                ? "ring-2 ring-foreground/20 ring-offset-2 ring-offset-background"
+                                : "opacity-60 hover:opacity-70"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {/* Calendar input */}
+                    <div className="flex items-center gap-2">
+                      {/* <Calendar className="h-3.5 w-3.5 text-muted-foreground" /> */}
+                      <input
+                        type="date"
+                        value={newTask.dueDate}
+                        onChange={(e) =>
+                          setNewTask({ ...newTask, dueDate: e.target.value })
+                        }
+                        className="bg-transparent font-serif text-xs text-muted-foreground focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   {/* Add task / cancel*/}
@@ -243,7 +271,7 @@ function Tasks() {
                     <button
                       onClick={handleAddTask}
                       disabled={!newTask.title.trim()}
-                      className="font-serif text-sm text-foreground transition-colors hover:text-foreground/80 disabled"
+                      className="font-serif text-sm text-foreground transition-colors hover:text-foreground/80 disabled:text-muted-foreground disabled:cursor-not-allowed"
                     >
                       Add task
                     </button>
@@ -256,7 +284,7 @@ function Tasks() {
                           dueDate: "",
                         });
                       }}
-                      className=""
+                      className="flex items-center gap-1 font-serif text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       <X className="h-3.5 w-3.5" />
                       Cancel
