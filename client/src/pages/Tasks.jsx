@@ -1,34 +1,36 @@
-import React, { useContext, useState, useEffect, useMemo } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
-import { Plus, Calendar } from "lucide-react";
+import { Plus, Calendar, X } from "lucide-react";
+import Datepicker from "react-tailwindcss-datepicker";
 import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const priorityColors = {
-  high: "bg-[#F51B2A]",
-  medium: "bg-[#F5791B]",
-  low: "bg=[#F5E61B]",
+  high: "bg-[#d4a574]",
+  medium: "bg-[#a8b5a0]",
+  low: "bg-[#B8B3B2]",
 };
 
 function Tasks() {
   const { user } = useContext(AuthContext);
   const [hoveredTask, setHoveredTask] = useState(null);
-  const [newTask, setNewTask] = useState({
-    title: "",
-    priority: "medium",
-    dueDate: "",
-  });
   const [dueDate, setDueDate] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [newTask, setNewTask] = useState({
+    title: "",
+    priority: "medium",
+    dueDate: dueDate,
+    category: "",
+  });
   const [activeView, setActiveView] = useState("Today");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isCreating, setIsCreating] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isCreating, setIsCreating] = useState(false); // used to display add task modal
   const queryClient = useQueryClient();
 
-  // query function runs when compoent is mounted
+  // query function runs when component is mounted
   const {
     data: tasks = [],
     isLoading,
@@ -49,8 +51,12 @@ function Tasks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      setIsCreating(false);
-      setNewTask({ title: "", priority: "medium", dueDate: "" });
+      // setIsCreating(false);
+      setNewTask({
+        title: "",
+        priority: "medium",
+        dueDate: dueDate,
+      });
     },
     onError: (err) => {
       console.error(err);
@@ -64,12 +70,13 @@ function Tasks() {
       title: newTask.title,
       priority: newTask.priority,
       dueDate: newTask.dueDate,
+      category: newTask.category,
     });
   };
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id) => {
-      await api.delete(`/api/tasks/${id}`);
+      await api.delete(`/api/tasks/${id}`, { status: "completed" });
     },
     onSuccess: () => {
       // refetch, update tasks cache
@@ -77,32 +84,85 @@ function Tasks() {
     },
   });
 
-  const todayUpcoming = [
-    { label: "Today", count: 5 },
-    { label: "Upcoming", count: 12 },
-  ];
+  const todayUpcoming = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return [
+      {
+        label: "All",
+        count: tasks.length,
+      },
+
+      {
+        label: "Today",
+        count: tasks.filter((task) => task.dueDate?.startsWith(today)).length,
+      },
+      {
+        label: "Upcoming",
+        count: tasks.filter(
+          (task) => task.dueDate && task.dueDate.split("T")[0] > today,
+        ).length,
+      },
+    ];
+  }, [tasks]);
 
   // retrieve the categories from task list
   const categoryList = useMemo(() => {
-    return ["All", ...new Set(tasks.map((task) => task.category || "General"))];
+    return [...new Set(tasks.map((task) => task.category || "General"))];
   }, [tasks]);
 
   // filter tasks
-  const filteredTasks =
-    selectedCategory === "All"
-      ? tasks
-      : tasks.filter(
-          (task) => (task.category || "General") === selectedCategory,
-        );
+  const filteredTasks = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return tasks.filter((task) => {
+      const matchesView =
+        activeView === "All"
+          ? true
+          : activeView === "Today"
+            ? task.dueDate?.startsWith(today)
+            : activeView === "Upcoming"
+              ? task.dueDate && task.dueDate.split("T")[0] > today
+              : true;
+
+      const matchesCategory =
+        selectedCategory === null ||
+        (task.category || "General") === selectedCategory;
+
+      return matchesView && matchesCategory;
+    });
+  }, [tasks, activeView, selectedCategory]);
 
   // get count for specific category
   const getCount = (category) => {
-    return tasks.filter((task) => (task.category || "General") === category)
-      .length;
+    return tasks.filter((t) => (t.category || "General") === category).length;
   };
 
   // get count for incomplete tasks
   const incompleteTasks = tasks.filter((task) => task.status !== "complete");
+
+  const formatDueDate = (dateStr) => {
+    if (!dateStr) {
+      return null;
+    }
+    const date = new Date(dateStr);
+    const today = new Date();
+
+    // Normalize both to midnight
+    const isToday =
+      date.getUTCFullYear() === today.getFullYear() &&
+      date.getUTCMonth() === today.getMonth() &&
+      date.getUTCDate() === today.getDate();
+
+    if (isToday) return "Today"; // No date if task is due today
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -133,15 +193,19 @@ function Tasks() {
               </div>
 
               <div className="space-y-1">
-                <div className="px-3 pb-2 font-serif text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="px-3 pb-3 font-serif text-sm uppercase tracking-wide text-muted-foreground">
                   Folders
                 </div>
                 {categoryList.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setActiveView(category)}
+                    onClick={() =>
+                      setSelectedCategory((prev) =>
+                        prev === category ? null : category,
+                      )
+                    }
                     className={`flex w-full items-center justify-between px-3 py-2 font-serif text-sm transition-colors ${
-                      activeView === category
+                      selectedCategory === category
                         ? "font-semibold text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -168,7 +232,7 @@ function Tasks() {
 
             {/* Tasks list */}
             <div className="divide-y divide-border/50">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <div
                   key={task._id}
                   onMouseEnter={() => setHoveredTask(task._id)}
@@ -192,9 +256,11 @@ function Tasks() {
                       className={`h-1.5 w-1.5 rounded-full ${priorityColors[task.priority]}`}
                     />
 
-                    <span className="font-serif text-sm text-muted-foreground">
-                      {task.dueDate}
-                    </span>
+                    {formatDueDate(task.dueDate) && (
+                      <span className="font-serif text-sm text-muted-foreground">
+                        {formatDueDate(task.dueDate)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Start Focus session hover */}
@@ -217,7 +283,8 @@ function Tasks() {
                   <span className="font-serif text-[15px]">Add new task</span>
                 </button>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 p-2">
+                  {/* Text input */}
                   <input
                     type="text"
                     value={newTask.title}
@@ -226,9 +293,97 @@ function Tasks() {
                     }
                     placeholder="Task name..."
                     autoFocus
-                    className="w-full bg-transparent"
+                    className="w-full bg-transparent font-serif text-[18px] text-foreground placeholder:text-muted-foreground opacity-80 focus:outline-none"
                     onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
+
+                  {/* Category */}
+                  <input
+                    type="text"
+                    value={newTask.category}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, category: e.target.value })
+                    }
+                    placeholder="Category (e.g., School, Health, Work)..."
+                    className="w-full bg-transparent font-serif text-[16px] text-foreground placeholder:text-muted-foreground opacity-60 focus:outline-none"
+                  />
+
+                  {/* Task options*/}
+                  <div className="flex items-center gap-6">
+                    {/* Priority select */}
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif text-xs text-muted-foreground">
+                        Priority:
+                      </span>
+                      <div className="flex gap-1.5">
+                        {["low", "medium", "high"].map((p) => (
+                          <button
+                            key={p}
+                            onClick={() =>
+                              setNewTask({ ...newTask, priority: p })
+                            }
+                            className={`h-3 w-3 rounded-full transition-all ${priorityColors[p]} ${
+                              newTask.priority === p
+                                ? "ring-2 ring-foreground/20 ring-offset-2 ring-offset-background"
+                                : "opacity-60 hover:opacity-70"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Calendar input */}
+                    <div className="flex items-center gap-2 w-40">
+                      {" "}
+                      {/* w-40 keeps it compact */}
+                      <Datepicker
+                        useRange={false}
+                        asSingle={true}
+                        // The library expects an object with startDate and endDate
+                        value={{
+                          startDate: newTask.dueDate,
+                          endDate: newTask.dueDate,
+                        }}
+                        onChange={(newValue) =>
+                          setNewTask({
+                            ...newTask,
+                            dueDate: newValue.startDate,
+                          })
+                        }
+                        inputClassName="bg-transparent font-serif text-xs text-muted-foreground focus:outline-none w-full cursor-pointer"
+                        containerClassName="relative"
+                        displayFormat="MMM DD, YYYY"
+                        primaryColor="emerald"
+                        placeholder="Select date"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Add task / cancel*/}
+                  <div className="flex items-center gap-4 pt-2">
+                    <button
+                      onClick={handleAddTask}
+                      disabled={!newTask.title.trim()}
+                      className="font-serif text-sm text-foreground transition-colors hover:text-foreground/80 disabled:text-muted-foreground disabled:cursor-not-allowed"
+                    >
+                      Add task
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsCreating(false);
+                        setNewTask({
+                          title: "",
+                          priority: "medium",
+                          dueDate: dueDate,
+                          category: "",
+                        });
+                      }}
+                      className="flex items-center gap-1 font-serif text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

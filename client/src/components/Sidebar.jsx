@@ -29,7 +29,7 @@ export function SideBar() {
 
   return (
     <aside
-      className={`border-r bg-background py-6 transition-all duration-300 ${
+      className={`border-r bg-input py-6 transition-all duration-300 ${
         isCollapsed ? "w-[92px] px-3" : "w-[228px] px-4"
       }`}
     >

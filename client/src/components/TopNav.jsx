@@ -6,7 +6,7 @@ export function TopNav() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <nav className="border-b border-border bg-background">
+    <nav className="border-b border-border bg-input">
       <div className="px-8 py-4 flex items-center justify-end">
         {/* <h2 className="tracking-wide opacity-80">Kaizen - Daily Improvement</h2> */}
 

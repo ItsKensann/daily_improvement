@@ -3,11 +3,27 @@ import { AuthContext } from "../context/AuthContext";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
 import { Navigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
 
 function Dashboard() {
   const { user, loading } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
+
+  const queryClient = useQueryClient();
+
+  // query function runs when component is mounted
+  const {
+    data: tasks = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["tasks"], // name of cache
+    queryFn: async () => {
+      const res = await api.get("/api/tasks");
+      return res.data;
+    },
+    enabled: !!user, // only run if user exists
+  });
 
   if (loading) {
     // TODO change to loading screen
