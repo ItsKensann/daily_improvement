@@ -26,7 +26,7 @@ function Tasks() {
     category: "",
   });
   const [activeView, setActiveView] = useState("Today");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCreating, setIsCreating] = useState(false); // used to display add task modal
   const queryClient = useQueryClient();
 
@@ -85,28 +85,57 @@ function Tasks() {
     },
   });
 
-  const todayUpcoming = [
-    { label: "Today", count: 5 },
-    { label: "Upcoming", count: 12 },
-  ];
+  const todayUpcoming = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return [
+      {
+        label: "All",
+        count: tasks.length,
+      },
+
+      {
+        label: "Today",
+        count: tasks.filter((task) => task.dueDate?.startsWith(today)).length,
+      },
+      {
+        label: "Upcoming",
+        count: tasks.filter((task) => task.dueDate && task.dueDate > today)
+          .length,
+      },
+    ];
+  }, [tasks]);
 
   // retrieve the categories from task list
   const categoryList = useMemo(() => {
-    return ["All", ...new Set(tasks.map((task) => task.category || "General"))];
+    return [...new Set(tasks.map((task) => task.category || "General"))];
   }, [tasks]);
 
   // filter tasks
-  const filteredTasks =
-    selectedCategory === "All"
-      ? tasks
-      : tasks.filter(
-          (task) => (task.category || "General") === selectedCategory,
-        );
+  const filteredTasks = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return tasks.filter((task) => {
+      const matchesView =
+        activeView === "All"
+          ? true
+          : activeView === "Today"
+            ? task.dueDate?.startsWith(today)
+            : activeView === "Upcoming"
+              ? task.dueDate && task.dueDate > today
+              : true;
+
+      const matchesCategory =
+        selectedCategory === null ||
+        (task.category || "General") === selectedCategory;
+
+      return matchesView && matchesCategory;
+    });
+  }, [tasks, activeView, selectedCategory]);
 
   // get count for specific category
   const getCount = (category) => {
-    return tasks.filter((task) => (task.category || "General") === category)
-      .length;
+    return tasks.filter((t) => (t.category || "General") === category).length;
   };
 
   // get count for incomplete tasks
@@ -170,9 +199,13 @@ function Tasks() {
                 {categoryList.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setActiveView(category)}
+                    onClick={() =>
+                      setSelectedCategory((prev) =>
+                        prev === category ? null : category,
+                      )
+                    }
                     className={`flex w-full items-center justify-between px-3 py-2 font-serif text-sm transition-colors ${
-                      activeView === category
+                      selectedCategory === category
                         ? "font-semibold text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
