@@ -57,4 +57,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Override for DatePicker calendar color */
+  div[class*="bg-white"][class*="dark:bg-slate-800"] {
+    background-color: var(--popover) !important;
+    border-color: var(--border) !important;
+  }
+
+  .dark div[class*="bg-white"][class*="dark:bg-slate-800"] {
+    background-color: var(--popover) !important;
+    border-color: var(--border) !important;
+  }
+
+  .dark .text-slate-800 {
+    color: var(--foreground) !important;
+  }
 }

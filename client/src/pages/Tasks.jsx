@@ -3,6 +3,7 @@ import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
 import { Plus, Calendar, X } from "lucide-react";
+import Datepicker from "react-tailwindcss-datepicker";
 import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -15,14 +16,15 @@ const priorityColors = {
 function Tasks() {
   const { user } = useContext(AuthContext);
   const [hoveredTask, setHoveredTask] = useState(null);
-  const [newTask, setNewTask] = useState({
-    title: "",
-    priority: "medium",
-    dueDate: "",
-  });
   const [dueDate, setDueDate] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [newTask, setNewTask] = useState({
+    title: "",
+    priority: "medium",
+    dueDate: dueDate,
+    category: "",
+  });
   const [activeView, setActiveView] = useState("Today");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isCreating, setIsCreating] = useState(false); // used to display add task modal
@@ -50,7 +52,12 @@ function Tasks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       // setIsCreating(false);
-      setNewTask({ title: "", priority: "medium", dueDate: "" });
+      setNewTask({
+        title: "",
+        priority: "medium",
+        dueDate: dueDate,
+        category: "",
+      });
     },
     onError: (err) => {
       console.error(err);
@@ -64,12 +71,13 @@ function Tasks() {
       title: newTask.title,
       priority: newTask.priority,
       dueDate: newTask.dueDate,
+      category: newTask.category,
     });
   };
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (id) => {
-      await api.delete(`/api/tasks/${id}`);
+      await api.delete(`/api/tasks/${id}`, { status: "completed" });
     },
     onSuccess: () => {
       // refetch, update tasks cache
@@ -103,6 +111,29 @@ function Tasks() {
 
   // get count for incomplete tasks
   const incompleteTasks = tasks.filter((task) => task.status !== "complete");
+
+  const formatDueDate = (dateStr) => {
+    if (!dateStr) {
+      return null;
+    }
+    const date = new Date(dateStr);
+    const today = new Date();
+
+    // Normalize both to midnight
+    const isToday =
+      date.getUTCFullYear() === today.getFullYear() &&
+      date.getUTCMonth() === today.getMonth() &&
+      date.getUTCDate() === today.getDate();
+
+    if (isToday) return "Today"; // No date if task is due today
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -192,9 +223,11 @@ function Tasks() {
                       className={`h-1.5 w-1.5 rounded-full ${priorityColors[task.priority]}`}
                     />
 
-                    <span className="font-serif text-sm text-muted-foreground">
-                      {task.dueDate}
-                    </span>
+                    {formatDueDate(task.dueDate) && (
+                      <span className="font-serif text-sm text-muted-foreground">
+                        {formatDueDate(task.dueDate)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Start Focus session hover */}
@@ -217,7 +250,7 @@ function Tasks() {
                   <span className="font-serif text-[15px]">Add new task</span>
                 </button>
               ) : (
-                <div className="space-y-4 border p-2">
+                <div className="space-y-4 p-2">
                   {/* Text input */}
                   <input
                     type="text"
@@ -227,9 +260,21 @@ function Tasks() {
                     }
                     placeholder="Task name..."
                     autoFocus
-                    className="w-full bg-transparent font-serif text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    className="w-full bg-transparent font-serif text-[18px] text-foreground placeholder:text-muted-foreground opacity-80 focus:outline-none"
                     onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
+
+                  {/* Category */}
+                  <input
+                    type="text"
+                    value={newTask.category}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, category: e.target.value })
+                    }
+                    placeholder="Category (e.g., School, Health, Work)..."
+                    className="w-full bg-transparent font-serif text-[16px] text-foreground placeholder:text-muted-foreground opacity-60 focus:outline-none"
+                  />
+
                   {/* Task options*/}
                   <div className="flex items-center gap-6">
                     {/* Priority select */}
@@ -253,16 +298,30 @@ function Tasks() {
                         ))}
                       </div>
                     </div>
+
                     {/* Calendar input */}
-                    <div className="flex items-center gap-2">
-                      {/* <Calendar className="h-3.5 w-3.5 text-muted-foreground" /> */}
-                      <input
-                        type="date"
-                        value={newTask.dueDate}
-                        onChange={(e) =>
-                          setNewTask({ ...newTask, dueDate: e.target.value })
+                    <div className="flex items-center gap-2 w-40">
+                      {" "}
+                      {/* w-40 keeps it compact */}
+                      <Datepicker
+                        useRange={false}
+                        asSingle={true}
+                        // The library expects an object with startDate and endDate
+                        value={{
+                          startDate: newTask.dueDate,
+                          endDate: newTask.dueDate,
+                        }}
+                        onChange={(newValue) =>
+                          setNewTask({
+                            ...newTask,
+                            dueDate: newValue.startDate,
+                          })
                         }
-                        className="bg-transparent font-serif text-xs text-muted-foreground focus:outline-none"
+                        inputClassName="bg-transparent font-serif text-xs text-muted-foreground focus:outline-none w-full cursor-pointer"
+                        containerClassName="relative"
+                        displayFormat="MMM DD, YYYY"
+                        primaryColor="emerald"
+                        placeholder="Select date"
                       />
                     </div>
                   </div>
@@ -282,7 +341,8 @@ function Tasks() {
                         setNewTask({
                           title: "",
                           priority: "medium",
-                          dueDate: "",
+                          dueDate: dueDate,
+                          category: "",
                         });
                       }}
                       className="flex items-center gap-1 font-serif text-sm text-muted-foreground transition-colors hover:text-foreground"
