@@ -28,7 +28,7 @@ function Tasks() {
   const [isCreating, setIsCreating] = useState(false); // used to display add task modal
   const queryClient = useQueryClient();
 
-  // query function runs when compoent is mounted
+  // query function runs when component is mounted
   const {
     data: tasks = [],
     isLoading,
@@ -230,8 +230,9 @@ function Tasks() {
                     className="w-full bg-transparent font-serif text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                     onKeyDown={(e) => e.key === "Enter" && handleAddTask(e)}
                   />
-                  {/* Select priority */}
+                  {/* Task options*/}
                   <div className="flex items-center gap-6">
+                    {/* Priority select */}
                     <div className="flex items-center gap-2">
                       <span className="font-serif text-xs text-muted-foreground">
                         Priority:
