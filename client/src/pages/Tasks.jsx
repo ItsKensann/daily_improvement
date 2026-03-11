@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useMemo } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
@@ -56,7 +56,6 @@ function Tasks() {
         title: "",
         priority: "medium",
         dueDate: dueDate,
-        category: "",
       });
     },
     onError: (err) => {
@@ -100,8 +99,9 @@ function Tasks() {
       },
       {
         label: "Upcoming",
-        count: tasks.filter((task) => task.dueDate && task.dueDate > today)
-          .length,
+        count: tasks.filter(
+          (task) => task.dueDate && task.dueDate.split("T")[0] > today,
+        ).length,
       },
     ];
   }, [tasks]);
@@ -122,7 +122,7 @@ function Tasks() {
           : activeView === "Today"
             ? task.dueDate?.startsWith(today)
             : activeView === "Upcoming"
-              ? task.dueDate && task.dueDate > today
+              ? task.dueDate && task.dueDate.split("T")[0] > today
               : true;
 
       const matchesCategory =
@@ -193,7 +193,7 @@ function Tasks() {
               </div>
 
               <div className="space-y-1">
-                <div className="px-3 pb-2 font-serif text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="px-3 pb-3 font-serif text-sm uppercase tracking-wide text-muted-foreground">
                   Folders
                 </div>
                 {categoryList.map((category) => (
