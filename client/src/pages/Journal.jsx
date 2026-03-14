@@ -48,11 +48,11 @@ export default function Journal() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background">
       <SideBar />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TopNav />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-hidden">
           <div className="flex gap-8 h-full">
             {/* Previous entries sidebar */}
             <div className="w-48 border-r border-border bg-background/50 px-6 py-8 overflow-auto">
@@ -98,6 +98,45 @@ export default function Journal() {
                       className="w-full border-none bg-transparent font-serif text-xl text-foreground placeholder:text-muted-foreground placeholder:opacity-40 focus:outline-none"
                     />
                   </div>
+
+                  {/* Mood selector */}
+                  <div className="flex items-center gap-4">
+                    {moods.map((mood) => {
+                      const Icon = mood.icon;
+                      return (
+                        <button
+                          key={mood.value}
+                          onClick={() => setSelectedMood(mood.value)}
+                          className={`transition-colors ${selectedMood === mood.value ? "text-accent" : ""}`}
+                        >
+                          <Icon className="h-5 w-5" strokeWidth={1.5} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Divider between header and text content */}
+                <div className="border-t border-border" />
+
+                {/* Main text editor */}
+                <div className="min-h-[60vh]">
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Begin writing..."
+                    className="h-full min-h-[60vh] w-full resize-none border-none bg-transparent font-serif text-lg leading-relaxed text-foreground placeholder:text-muted-foreground placeholder:opacity-40 focus:outline-none"
+                  />
+                </div>
+
+                {/* Save button */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={{}}
+                    className="border border-border px-6 py-2 font-sans text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                  >
+                    Save Entry
+                  </button>
                 </div>
               </div>
             </div>

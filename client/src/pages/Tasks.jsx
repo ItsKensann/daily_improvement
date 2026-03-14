@@ -176,11 +176,11 @@ function Tasks() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background">
       <SideBar />
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 overflow-hidden">
         <TopNav />
-        <div className="flex min-w-0 min-h-screen flex-1">
+        <div className="flex min-w-0 h-full flex-1 overflow-hidden">
           {/* Tasklist side bar */}
           <aside className="w-[220px] border-r border-border bg-background px-6 py-8">
             <nav className="space-y-6">
@@ -191,7 +191,7 @@ function Tasks() {
                     onClick={() => setActiveView(item.label)}
                     className={`flex w-full items-center justify-between px-3 py-2 text-sm transition-colors ${
                       item.label === activeView
-                        ? "font-serif font-semibold text-foreground underline"
+                        ? "font-serif font-semibold text-foreground"
                         : "font-serif text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -217,7 +217,7 @@ function Tasks() {
                     }
                     className={`flex w-full items-center justify-between px-3 py-2 font-serif text-sm transition-colors ${
                       selectedCategory === category
-                        ? "font-semibold text-foreground underline"
+                        ? "font-semibold text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
