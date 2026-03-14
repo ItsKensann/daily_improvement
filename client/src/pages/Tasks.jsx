@@ -25,7 +25,7 @@ function Tasks() {
     dueDate: dueDate,
     category: "",
   });
-  const [activeView, setActiveView] = useState("Today");
+  const [activeView, setActiveView] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCreating, setIsCreating] = useState(false); // used to display add task modal
   const queryClient = useQueryClient();
@@ -116,15 +116,26 @@ function Tasks() {
     const today = new Date().toISOString().split("T")[0];
 
     return tasks.filter((task) => {
-      const matchesView =
-        activeView === "All"
-          ? true
-          : activeView === "Today"
-            ? task.dueDate?.startsWith(today)
-            : activeView === "Upcoming"
-              ? task.dueDate && task.dueDate.split("T")[0] > today
-              : true;
+      let matchesView = true;
+      const taskDate = task.dueDate?.split("T")[0];
 
+      switch (activeView) {
+        case "Today":
+          matchesView = taskDate === today;
+          break;
+        case "Upcoming":
+          matchesView = taskDate > today;
+          break;
+        case "Past Due":
+          // Only show if the date is in the past AND it's not finished
+          matchesView = taskDate < today && !task.completed;
+          break;
+        case "All":
+        default:
+          matchesView = true;
+      }
+
+      // 2. Logic for Categories
       const matchesCategory =
         selectedCategory === null ||
         (task.category || "General") === selectedCategory;
@@ -180,7 +191,7 @@ function Tasks() {
                     onClick={() => setActiveView(item.label)}
                     className={`flex w-full items-center justify-between px-3 py-2 text-sm transition-colors ${
                       item.label === activeView
-                        ? "font-serif font-semibold text-foreground"
+                        ? "font-serif font-semibold text-foreground underline"
                         : "font-serif text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -206,7 +217,7 @@ function Tasks() {
                     }
                     className={`flex w-full items-center justify-between px-3 py-2 font-serif text-sm transition-colors ${
                       selectedCategory === category
-                        ? "font-semibold text-foreground"
+                        ? "font-semibold text-foreground underline"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -223,7 +234,7 @@ function Tasks() {
           <main className="px-12 py-8">
             <div className="space-y-0">
               <div className="mb-8">
-                <h1 className="font-serif text-2xl text-foreground">Today</h1>
+                <h1 className="font-serif text-2xl text-foreground">Tasks</h1>
                 <p className="mt-1 font-serif text-sm text-muted-foreground">
                   {incompleteTasks.length} tasks remaining
                 </p>

@@ -14,6 +14,7 @@ dotenv.config();
 // import routes
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
+const journalRoutes = require("./routes/journals");
 const { collection } = require("./models/Task");
 const PORT = process.env.PORT || 5000;
 
@@ -29,7 +30,7 @@ app.use(
   cors({
     origin: "http://localhost:5173", // Vite default port
     credentials: true, // Important for cookies/sessions
-  })
+  }),
 );
 app.use(helmet()); // Adds security headers
 app.use(morgan("dev")); // Logs requests to the console
@@ -43,7 +44,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
     }),
-  })
+  }),
 );
 
 // passport middleware
@@ -54,6 +55,7 @@ app.use(passport.session());
 // routes
 app.use("/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/journals", journalRoutes);
 
 // Test Route to confirm login worked
 app.get("/api/test-success", (req, res) => {
