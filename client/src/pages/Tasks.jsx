@@ -50,6 +50,7 @@ function Tasks() {
       return res.data;
     },
     onSuccess: () => {
+      // refetch
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       // setIsCreating(false);
       setNewTask({

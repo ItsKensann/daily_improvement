@@ -34,6 +34,10 @@ exports.createJournal = async (req, res) => {
   }
 };
 
+// @desc    Update a journal entry
+// @route   PUT /api/journals/:id
+// @access  Private
+
 // @desc    Delete a journal entry
 // @route   DELETE /api/journals/:id
 // @access  Private

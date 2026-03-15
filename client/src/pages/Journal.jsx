@@ -17,7 +17,7 @@ export default function Journal() {
   const { user } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [selectedMood, setSelectedMood] = useState(null);
+  const [selectedMood, setSelectedMood] = useState("meh");
   const [selectedEntry, setSelectedEntry] = useState(null);
   const queryClient = useQueryClient();
 
@@ -34,18 +34,41 @@ export default function Journal() {
     enabled: !!user, // only run if user exists
   });
 
+  // create entry
+  const addJournalMutation = useMutation({
+    mutationFn: async (journalData) => {
+      const res = await api.post("/api/journals", journalData);
+      return res.data;
+    },
+    onSuccess: () => {
+      // mark cache as stale and refetch
+      queryClient.invalidateQueries({ queryKey: ["journals"] });
+      // reset state variables
+      setSelectedEntry(null);
+      setTitle("");
+      setContent("");
+      setSelectedMood(null);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  const handleNewEntry = (e) => {
+    e.preventDefault();
+    addJournalMutation.mutate({
+      date: today,
+      title: title,
+      content: content,
+      mood: selectedMood,
+    });
+  };
+
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-
-  const handleNewEntry = () => {
-    setSelectedEntry(null);
-    setTitle("");
-    setContent("");
-    setSelectedMood(null);
-  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -132,7 +155,7 @@ export default function Journal() {
                 {/* Save button */}
                 <div className="flex justify-end">
                   <button
-                    onClick={{}}
+                    onClick={handleNewEntry}
                     className="border border-border px-6 py-2 font-sans text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
                   >
                     Save Entry
