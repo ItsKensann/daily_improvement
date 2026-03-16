@@ -57,8 +57,8 @@ exports.createJournal = async (req, res) => {
 exports.deleteJournal = async (req, res) => {
   try {
     // Find the journal first
-    const journal = Journal.findById({ id: req.params.id });
-
+    const journal = await Journal.findById(req.params.id);
+    // console.log(journal);
     // error if journal entry doesn't exist
     if (!journal) {
       return res.status(404).json({ message: "Journal not found" });
@@ -70,7 +70,7 @@ exports.deleteJournal = async (req, res) => {
     }
 
     // do actual deletion
-    await Journal.deleteOne({ _id: req.res.id });
+    await Journal.deleteOne({ _id: req.params.id });
     res.json({ message: "Journal removed" });
   } catch (err) {
     console.error(err);

@@ -2,7 +2,7 @@ import { useState, useContext, useMemo } from "react";
 import { SideBar } from "../components/Sidebar";
 import { TopNav } from "../components/TopNav";
 import { AuthContext } from "../context/AuthContext";
-import { Smile, Meh, Frown, MoonStar, Loader2 } from "lucide-react";
+import { Smile, Meh, Frown, MoonStar, Loader2, Trash2 } from "lucide-react";
 import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -58,6 +58,9 @@ export default function Journal() {
       localStorage.removeItem(DRAFT_KEY);
       setSelectedEntry(null);
     },
+    onError: (err) => {
+      console.error(err);
+    },
   });
 
   const handleSave = (e) => {
@@ -69,6 +72,21 @@ export default function Journal() {
       ...draft,
     });
   };
+
+  // Delete mutataion
+  const deleteJournalMutation = useMutation({
+    mutationFn: async (journalId) => {
+      const res = await api.delete(`/api/journals/${journalId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journals"] });
+      setSelectedEntry(null);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
 
   // UI Derived State
   const isViewing = !!selectedEntry;
@@ -110,20 +128,45 @@ export default function Journal() {
                     <Loader2 className="animate-spin h-4 w-4 text-muted-foreground" />
                   )}
 
-                  {journals.map((entry) => (
-                    <button
-                      key={entry._id}
-                      onClick={() => setSelectedEntry(entry)}
-                      className={`w-full text-left py-2 px-3 rounded transition-all ${selectedEntry?._id === entry._id ? "bg-muted border-l-2 border-accent" : "hover:bg-muted/50"}`}
-                    >
-                      <p className="truncate text-sm font-medium">
-                        {entry.title || "Untitled"}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {new Date(entry.date).toLocaleDateString()}
-                      </p>
-                    </button>
-                  ))}
+                  {journals.map((entry) => {
+                    const isDeletingThis =
+                      deleteJournalMutation.isPending &&
+                      deleteJournalMutation.variables === entry._id;
+
+                    return (
+                      <div
+                        className="flex group relative items-center gap-2"
+                        key={entry._id}
+                      >
+                        <button
+                          onClick={() => setSelectedEntry(entry)}
+                          className={`w-full text-left py-2 px-3 rounded transition-all ${selectedEntry?._id === entry._id ? "bg-muted border-l-2 border-accent" : "hover:bg-muted/50"}`}
+                        >
+                          <p className="truncate text-sm font-medium">
+                            {entry.title || "Untitled"}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(entry.date).toLocaleDateString()}
+                          </p>
+                        </button>
+                        {/* Delete button only shows on hover of the container */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevents selecting the entry when clicking delete
+                            deleteJournalMutation.mutate(entry._id);
+                          }}
+                          disabled={deleteJournalMutation.isPending}
+                          className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-all"
+                        >
+                          {isDeletingThis ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
