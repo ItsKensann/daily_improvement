@@ -20,10 +20,8 @@ exports.getJournals = async (req, res) => {
 // @access  Private
 exports.getJournal = async (req, res) => {
   try {
-    const journals = await Journal.find({ user: req.user.id }).sort({
-      createdAt: -1,
-    });
-    res.json(journals);
+    const journal = Journal.findById(req.params.id);
+    res.json(journal);
   } catch (err) {
     console.error(err);
     res.status(500).send(`Server Error`);
