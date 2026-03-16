@@ -1,9 +1,24 @@
 const Journal = require("../models/Journal");
 
-// @desc    Get all journaks
+// @desc    Get all journals
 // @route   GET /api/journals
 // @access  Private
 exports.getJournals = async (req, res) => {
+  try {
+    const journals = await Journal.find({ user: req.user.id }).sort({
+      createdAt: -1,
+    });
+    res.json(journals);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Server Error`);
+  }
+};
+
+// @desc    Get a specific journal entry
+// @route   GET /api/journals/:id
+// @access  Private
+exports.getJournal = async (req, res) => {
   try {
     const journals = await Journal.find({ user: req.user.id }).sort({
       createdAt: -1,
@@ -43,6 +58,22 @@ exports.createJournal = async (req, res) => {
 // @access  Private
 exports.deleteJournal = async (req, res) => {
   try {
+    // Find the journal first
+    const journal = Journal.findById({ id: req.params.id });
+
+    // error if journal entry doesn't exist
+    if (!journal) {
+      return res.status(404).json({ message: "Journal not found" });
+    }
+
+    // error if user does not match
+    if (journal.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    // do actual deletion
+    await Journal.deleteOne({ _id: req.res.id });
+    res.json({ message: "Journal removed" });
   } catch (err) {
     console.error(err);
     res.status(500).send(`Server Error`);
