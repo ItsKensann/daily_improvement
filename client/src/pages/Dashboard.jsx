@@ -25,6 +25,16 @@ function Dashboard() {
     enabled: !!user, // only run if user exists
   });
 
+  // Fetch Journals
+  const { data: journals = [] } = useQuery({
+    queryKey: ["journals"],
+    queryFn: async () => {
+      const res = await api.get("/api/journals");
+      return res.data;
+    },
+    enabled: !!user,
+  });
+
   if (loading) {
     // TODO change to loading screen
     return <div>loading...</div>;

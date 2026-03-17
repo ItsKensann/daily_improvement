@@ -4,6 +4,7 @@ import { SideBar } from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
 import { Plus, Calendar, X } from "lucide-react";
 import Datepicker from "react-tailwindcss-datepicker";
+import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -276,11 +277,13 @@ function Tasks() {
                   </div>
 
                   {/* Start Focus session hover */}
-                  <button
-                    className={`font-serif text-sm text-muted-foreground transition-opacity hover:text-foreground ${hoveredTask === task._id ? "opacity-100" : "opacity-0"}`}
-                  >
-                    Start Focus Session
-                  </button>
+                  <Link to="/focus">
+                    <button
+                      className={`font-serif text-sm text-muted-foreground transition-opacity hover:text-foreground ${hoveredTask === task._id ? "opacity-100" : "opacity-0"}`}
+                    >
+                      Start Focus Session
+                    </button>
+                  </Link>
                 </div>
               ))}
             </div>

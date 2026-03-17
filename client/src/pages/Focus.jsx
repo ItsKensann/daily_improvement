@@ -1,13 +1,9 @@
-import { SideBar } from "../components/Sidebar";
-import { TopNav } from "../components/TopNav";
-
+import { useEffect, useState } from "react";
+import { Pause, Play, SkipForward, SkipBack } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import api from "../api/axios";
 export default function Focus() {
   return (
-    <div className="flex min-h-screen bg-background">
-      <SideBar />
-      <div className="min-w-0 flex-1">
-        <TopNav />
-      </div>
-    </div>
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#2b2d2e]"></div>
   );
 }
