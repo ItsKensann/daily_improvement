@@ -240,6 +240,16 @@ export default function FocusModePage() {
   const textColor = isWorkMode ? "text-[#d4d4d4]" : "text-[#c8d4a3]";
   const subtleColor = isWorkMode ? "text-[#a0a0a0]" : "text-[#a8b89a]";
 
+  // update tab title to reflect time ticking down
+  useEffect(() => {
+    const modeLabel = isWorkMode ? "Focus" : "Break";
+    document.title = `${formatTime(timeLeft)} - ${modeLabel}`;
+
+    return () => {
+      document.title = "Kaizen - Daily Improvement";
+    };
+  }, [timeLeft, isWorkMode]);
+
   return (
     <div
       className={`fixed inset-0 flex flex-col items-center justify-center ${bgColor} transition-colors duration-300`}
