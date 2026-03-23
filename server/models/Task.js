@@ -22,6 +22,7 @@ const TaskSchema = new mongoose.Schema(
 
     dueDate: { type: Date, default: Date.now },
     completedAt: { type: Date }, // Crucial for "Yesterday's Review" AI generation
+    totalTimeSpent: { type: Number, default: 0 },
 
     // AI-generated subtasks (hidden by default in UI until expanded)
     aiBreakdown: [

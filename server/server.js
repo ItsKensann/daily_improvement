@@ -15,6 +15,7 @@ dotenv.config();
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
 const journalRoutes = require("./routes/journals");
+const focusRoutes = require("./routes/focused");
 const { collection } = require("./models/Task");
 const PORT = process.env.PORT || 5000;
 
@@ -56,6 +57,7 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/journals", journalRoutes);
+app.use("/api/focus", focusRoutes);
 
 // Test Route to confirm login worked
 app.get("/api/test-success", (req, res) => {
