@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Pause, Play, SkipForward, CheckCircle2, Settings } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import alarmSound1 from "../../public/alarm_sound_1.wav";
+import alarmSound1 from "/src/alarm_sound_1.wav";
 import api from "../api/axios";
 
 const DEFAULT_WORK_MINUTES = 25;
@@ -23,7 +23,10 @@ export default function FocusModePage() {
   const BREAK_TIME = breakMinutes * 60;
 
   const [mode, setMode] = useState("work");
-  const [timeLeft, setTimeLeft] = useState(WORK_TIME);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem("timerSettings"));
+    return saved ? saved.workMinutes * 60 : DEFAULT_WORK_MINUTES * 60;
+  });
   const [isRunning, setIsRunning] = useState(false);
   const [showTaskSelection, setShowTaskSelection] = useState(!taskId);
   const [showTimerSettings, setShowTimerSettings] = useState(false);
@@ -60,6 +63,15 @@ export default function FocusModePage() {
 
   // Restore timer from localStorage on mount
   useEffect(() => {
+    // At the top of your mount useEffect
+    const savedSettings = JSON.parse(localStorage.getItem("timerSettings"));
+    if (savedSettings) {
+      setWorkMinutes(savedSettings.workMinutes);
+      setBreakMinutes(savedSettings.breakMinutes);
+      setDraftWork(savedSettings.workMinutes);
+      setDraftBreak(savedSettings.breakMinutes);
+    }
+
     const savedTimer = JSON.parse(localStorage.getItem("focusTimer"));
     if (savedTimer && savedTimer.isRunning) {
       const elapsedSeconds = Math.floor(
@@ -194,7 +206,7 @@ export default function FocusModePage() {
   };
 
   const handleSkip = () => {
-    // playAlarm();
+    playAlarm();
     setIsRunning(false);
     setMode((m) => (m === "work" ? "break" : "work"));
     setTimeLeft(mode === "work" ? BREAK_TIME : WORK_TIME);
@@ -217,6 +229,10 @@ export default function FocusModePage() {
     setIsRunning(false);
     setMode("work");
     setTimeLeft(newWork * 60);
+    localStorage.setItem(
+      "timerSettings",
+      JSON.stringify({ workMinutes: newWork, breakMinutes: newBreak }),
+    );
     localStorage.removeItem("focusTimer");
     setShowTimerSettings(false);
   };
