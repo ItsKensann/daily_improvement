@@ -5,7 +5,7 @@ const Task = require("../models/Task");
 // @access  Private
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user.id }).sort({
+    const tasks = await Task.find({ user: req.user.id, status: "todo" }).sort({
       createdAt: -1,
     });
     res.json(tasks);
@@ -31,6 +31,31 @@ exports.createTask = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
+  }
+};
+
+// @desc    Mark a task as updated
+// @route   Patch /api/tasks/:id
+// @access  Private
+exports.completeTask = async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (task.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const completedTask = await Task.findByIdAndUpdate(req.params.id, {
+      status: "completed",
+    });
+
+    res.json(completedTask);
+  } catch (err) {
+    console.error(err);
   }
 };
 

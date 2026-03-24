@@ -86,6 +86,17 @@ function Tasks() {
     },
   });
 
+  // mark task as complete
+  const completeTaskMutation = useMutation({
+    mutationFn: async (id) => {
+      await api.patch(`/api/tasks/${id}`, { status: "completed" });
+    },
+    onSuccess: () => {
+      // refetch, update tasks cache
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+
   const todayUpcoming = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
 
@@ -254,7 +265,7 @@ function Tasks() {
                 >
                   {/* Button to remove task */}
                   <button
-                    onClick={() => deleteTaskMutation.mutate(task._id)}
+                    onClick={() => completeTaskMutation.mutate(task._id)}
                     className={`h-4 w-4 rounded-full border-2 transition-colors ${
                       task.status === "complete"
                         ? "border-accent bg-accent"
@@ -277,7 +288,7 @@ function Tasks() {
                   </div>
 
                   {/* Start Focus session hover */}
-                  <Link to={`/focus?task=${task.title}&taskId=${task.id}`}>
+                  <Link to={`/focus?task=${task.title}&taskId=${task._id}`}>
                     <button
                       className={`font-serif text-sm text-muted-foreground transition-opacity hover:text-foreground ${hoveredTask === task._id ? "opacity-100" : "opacity-0"}`}
                     >

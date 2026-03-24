@@ -71,11 +71,15 @@ export default function FocusModePage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
+  // mark task as complete
   const completeTaskMutation = useMutation({
     mutationFn: async (id) => {
-      await api.delete(`/api/tasks/${id}`);
+      await api.patch(`/api/tasks/${id}`, { status: "completed" });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+    onSuccess: () => {
+      // refetch, update tasks cache
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
 
   // Restore timer from localStorage on mount
