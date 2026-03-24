@@ -4,7 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Journal from "./pages/Journal";
 import Calendar from "./pages/Calendar";
-import Library from "./pages/Library";
+import Insights from "./pages/Insights";
 import Focus from "./pages/Focus";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -34,7 +34,7 @@ function App() {
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/journal" element={<Journal />} />
                 <Route path="/calendar" element={<Calendar />} />
-                <Route path="/library" element={<Library />} />
+                <Route path="/insights" element={<Insights />} />
                 <Route path="/focus" element={<Focus />} />
               </Routes>
             </BrowserRouter>

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const FocusSession = require("../models/FocusSession");
 const Task = require("../models/Task");
@@ -28,26 +29,31 @@ exports.updateTimer = async (req, res) => {
 };
 
 // @desc    Get dashboard stats for the logged in user
-// @route   GET /api/dashboard/stats
+// @route   GET /api/user/dashboard-stats
 // @access  Private
 exports.getDashboardStats = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userIdStr = req.user.id;
+    // Fix #2: Cast to ObjectId for aggregations
+    const userObjectId = new mongoose.Types.ObjectId(userIdStr);
+
+    // Fix #1: Safe Date handling
     const now = new Date();
 
-    // Time boundaries
-    const startOfToday = new Date(now.setHours(0, 0, 0, 0));
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - 7);
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfToday.getDate() - 7);
 
     // --- FOCUS STATS ---
     const focusSessionsToday = await FocusSession.find({
-      user: userId,
+      user: userIdStr,
       completedAt: { $gte: startOfToday },
     });
 
     const focusSessionsThisWeek = await FocusSession.find({
-      user: userId,
+      user: userIdStr,
       completedAt: { $gte: startOfWeek },
     });
 
@@ -64,12 +70,14 @@ exports.getDashboardStats = async (req, res) => {
     const focusByDay = await FocusSession.aggregate([
       {
         $match: {
-          user: userId,
+          user: userObjectId, // Using the casted ObjectId!
           completedAt: { $gte: startOfWeek },
         },
       },
       {
         $group: {
+          // Note: $dateToString uses UTC. If you notice chart days are off by 1,
+          // you may need to add a timezone offset here later.
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } },
           totalMinutes: { $sum: "$durationMinutes" },
         },
@@ -78,32 +86,33 @@ exports.getDashboardStats = async (req, res) => {
     ]);
 
     // --- TASK STATS ---
+    // Fix #3: Make sure your tasks schema has a 'status' and 'completedAt' field!
     const tasksCompletedToday = await Task.countDocuments({
-      user: userId,
+      user: userIdStr,
       status: "completed",
       completedAt: { $gte: startOfToday },
     });
 
     const tasksCompletedThisWeek = await Task.countDocuments({
-      user: userId,
+      user: userIdStr,
       status: "completed",
       completedAt: { $gte: startOfWeek },
     });
 
     const tasksByCategory = await Task.aggregate([
-      { $match: { user: userId } },
+      { $match: { user: userObjectId } }, // Casted ObjectId
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
     const tasksByPriority = await Task.aggregate([
-      { $match: { user: userId } },
+      { $match: { user: userObjectId, status: { $ne: "completed" } } }, // Usually you only want active tasks for priority charts
       { $group: { _id: "$priority", count: { $sum: 1 } } },
     ]);
 
     const overdueCount = await Task.countDocuments({
-      user: userId,
+      user: userIdStr,
       status: { $ne: "completed" },
-      dueDate: { $lt: now },
+      dueDate: { $lt: now }, // 'now' is still the exact current time. Perfect.
     });
 
     res.json({
@@ -112,14 +121,14 @@ exports.getDashboardStats = async (req, res) => {
         minutesThisWeek: focusMinutesThisWeek,
         sessionsToday: focusSessionsToday.length,
         sessionsThisWeek: focusSessionsThisWeek.length,
-        byDay: focusByDay, // [{ _id: "2025-01-01", totalMinutes: 50 }, ...]
+        byDay: focusByDay,
       },
       tasks: {
         completedToday: tasksCompletedToday,
         completedThisWeek: tasksCompletedThisWeek,
         overdueCount,
-        byCategory: tasksByCategory, // [{ _id: "Coding", count: 3 }, ...]
-        byPriority: tasksByPriority, // [{ _id: "high", count: 2 }, ...]
+        byCategory: tasksByCategory,
+        byPriority: tasksByPriority,
       },
     });
   } catch (err) {

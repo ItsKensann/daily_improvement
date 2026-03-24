@@ -49,9 +49,14 @@ exports.completeTask = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const completedTask = await Task.findByIdAndUpdate(req.params.id, {
-      status: "completed",
-    });
+    const completedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: "completed",
+        completedAt: Date.now(),
+      },
+      { new: true },
+    );
 
     res.json(completedTask);
   } catch (err) {

@@ -22,8 +22,8 @@ export function SideBar() {
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: PenLine, label: "Journal", href: "/journal" },
     { icon: CheckSquare, label: "Tasks", href: "/tasks" },
-    { icon: Calendar, label: "Calendar", href: "/calendar" },
-    { icon: BookOpen, label: "Library", href: "/library" },
+    // { icon: Calendar, label: "Calendar", href: "/calendar" },
+    { icon: BookOpen, label: "Insights", href: "/insights" },
     { icon: Clock, label: "Focus", href: "/focus" },
   ];
 
