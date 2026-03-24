@@ -116,6 +116,13 @@ function Tasks() {
           (task) => task.dueDate && task.dueDate.split("T")[0] > today,
         ).length,
       },
+      {
+        label: "Past Due",
+        count: tasks.filter((task) => {
+          const taskDate = task.dueDate?.split("T")[0];
+          return taskDate < today && task.status !== "completed";
+        }).length,
+      },
     ];
   }, [tasks]);
 
@@ -141,7 +148,7 @@ function Tasks() {
           break;
         case "Past Due":
           // Only show if the date is in the past AND it's not finished
-          matchesView = taskDate < today && !task.completed;
+          matchesView = taskDate < today;
           break;
         case "All":
         default:
@@ -178,7 +185,11 @@ function Tasks() {
       date.getUTCMonth() === today.getMonth() &&
       date.getUTCDate() === today.getDate();
 
-    if (isToday) return "Today"; // No date if task is due today
+    if (isToday) {
+      return "Today";
+    } else if (date < today) {
+      return "Past Due";
+    }
 
     return date.toLocaleDateString("en-US", {
       month: "short",
