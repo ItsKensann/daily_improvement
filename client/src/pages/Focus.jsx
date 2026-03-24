@@ -3,10 +3,18 @@ import { Pause, Play, SkipForward, CheckCircle2, Settings } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import alarmSound1 from "/sounds/alarm_sound_1.wav";
+import alarmSound2 from "/sounds/alarm_sound_2.wav";
+import alarmSound3 from "/sounds/alarm_sound_3.wav";
 import api from "../api/axios";
 
 const DEFAULT_WORK_MINUTES = 25;
 const DEFAULT_BREAK_MINUTES = 5;
+
+const alarmSoundMappings = [
+  { name: "Bell", link: alarmSound1 },
+  { name: "Flute", link: alarmSound2 },
+  { name: "Chimes", link: alarmSound3 },
+];
 
 export default function FocusModePage() {
   const navigate = useNavigate();
@@ -18,6 +26,7 @@ export default function FocusModePage() {
 
   const [workMinutes, setWorkMinutes] = useState(DEFAULT_WORK_MINUTES);
   const [breakMinutes, setBreakMinutes] = useState(DEFAULT_BREAK_MINUTES);
+  const [alarmSound, setAlarmSound] = useState();
 
   const WORK_TIME = workMinutes * 60;
   const BREAK_TIME = breakMinutes * 60;
