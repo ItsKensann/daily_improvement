@@ -9,11 +9,12 @@ import api from "../api/axios";
 
 const DEFAULT_WORK_MINUTES = 25;
 const DEFAULT_BREAK_MINUTES = 5;
+const DEFAULT_ALARM_SOUND = alarmSound1;
 
 const alarmSoundMappings = [
-  { name: "Bell", link: alarmSound1 },
-  { name: "Flute", link: alarmSound2 },
-  { name: "Chimes", link: alarmSound3 },
+  { id: "bell", name: "Bell", link: alarmSound1 },
+  { id: "flute", name: "Flute", link: alarmSound2 },
+  { id: "chimes", name: "Chimes", link: alarmSound3 },
 ];
 
 export default function FocusModePage() {
@@ -26,7 +27,14 @@ export default function FocusModePage() {
 
   const [workMinutes, setWorkMinutes] = useState(DEFAULT_WORK_MINUTES);
   const [breakMinutes, setBreakMinutes] = useState(DEFAULT_BREAK_MINUTES);
-  const [alarmSound, setAlarmSound] = useState();
+  const [alarmSound, setAlarmSound] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("alarmSound"));
+      return saved?.alarmSound ?? DEFAULT_ALARM_SOUND;
+    } catch {
+      return DEFAULT_ALARM_SOUND;
+    }
+  });
 
   const WORK_TIME = workMinutes * 60;
   const BREAK_TIME = breakMinutes * 60;
@@ -146,8 +154,12 @@ export default function FocusModePage() {
     return () => clearInterval(timerIntervalRef.current);
   }, [isRunning, mode, taskId]);
 
+  useEffect(() => {
+    localStorage.setItem("alarmSound", JSON.stringify({ alarmSound }));
+  }, [alarmSound]);
+
   const playAlarm = () => {
-    const audio = new Audio(alarmSound1);
+    const audio = new Audio(alarmSound);
     audio.play();
   };
 
@@ -227,6 +239,10 @@ export default function FocusModePage() {
     setDraftWork(workMinutes);
     setDraftBreak(breakMinutes);
     setShowTimerSettings(true);
+  };
+
+  const handleSelectAlarmSound = (e) => {
+    setAlarmSound(e.target.value);
   };
 
   // Apply new timer lengths — resets the current timer
@@ -356,6 +372,17 @@ export default function FocusModePage() {
                 <label className="font-serif text-sm text-[#a0a0a0]">
                   Alarm Sound
                 </label>
+                <select
+                  value={alarmSound}
+                  onChange={handleSelectAlarmSound}
+                  className="w-20 bg-[#3a3d40] border border-[#555] rounded px-3 py-1 font-serif text-sm text-[#d4d4d4] focus:outline-none focus:border-[#888]"
+                >
+                  {alarmSoundMappings.map((alarm) => (
+                    <option key={alarm.id} value={alarm.link}>
+                      {alarm.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex items-center justify-between">
                 <label className="font-serif text-sm text-[#a0a0a0]">
