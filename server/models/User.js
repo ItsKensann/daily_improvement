@@ -23,8 +23,12 @@ const UserSchema = new mongoose.Schema(
     preferences: {
       theme: { type: String, default: "dark" }, // 'light' or 'dark'
       dailyBriefingTime: { type: String, default: "09:00" }, // When to trigger the AI news
-      workTime: { type: Number, default: 25 },
-      breakTime: { type: Number, default: 5 },
+    },
+    timerSettings: {
+      workMinutes: { type: Number, default: 25 },
+      breakMinutes: { type: Number, default: 5 },
+      alarmSound: { type: String },
+      alarmVolume: { type: Number, default: 50 },
     },
     createdAt: {
       type: Date,

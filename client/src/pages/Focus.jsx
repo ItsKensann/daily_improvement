@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Pause, Play, SkipForward, CheckCircle2, Settings } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import alarmSound1 from "/src/alarm_sound_1.wav";
+import alarmSound1 from "/sounds/alarm_sound_1.wav";
 import api from "../api/axios";
 
 const DEFAULT_WORK_MINUTES = 25;
@@ -314,7 +314,7 @@ export default function FocusModePage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-[#2b2d2e] rounded-lg p-8 max-w-sm w-full mx-4 shadow-2xl border border-[#444]">
             <h2 className="font-serif text-lg text-[#d4d4d4] mb-6">
-              Timer Settings
+              Focus Settings
             </h2>
             <div className="space-y-5">
               <div className="flex items-center justify-between">
@@ -342,6 +342,16 @@ export default function FocusModePage() {
                   onChange={(e) => setDraftBreak(e.target.value)}
                   className="w-20 bg-[#3a3d40] border border-[#555] rounded px-3 py-1 font-serif text-sm text-[#d4d4d4] text-center focus:outline-none focus:border-[#888]"
                 />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="font-serif text-sm text-[#a0a0a0]">
+                  Alarm Sound
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="font-serif text-sm text-[#a0a0a0]">
+                  Volume
+                </label>
               </div>
             </div>
             <p className="mt-4 text-xs font-serif text-[#666]">

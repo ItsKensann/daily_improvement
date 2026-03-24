@@ -16,6 +16,7 @@ const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
 const journalRoutes = require("./routes/journals");
 const focusRoutes = require("./routes/focused");
+const userRoutes = require("./routes/user");
 const { collection } = require("./models/Task");
 const PORT = process.env.PORT || 5000;
 
@@ -58,6 +59,7 @@ app.use("/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/journals", journalRoutes);
 app.use("/api/focus", focusRoutes);
+app.use("/api/user", userRoutes);
 
 // Test Route to confirm login worked
 app.get("/api/test-success", (req, res) => {
