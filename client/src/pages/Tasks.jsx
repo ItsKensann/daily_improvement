@@ -277,7 +277,7 @@ function Tasks() {
                   </div>
 
                   {/* Start Focus session hover */}
-                  <Link to="/focus">
+                  <Link to={`/focus?task=${task.title}&taskId=${task.id}`}>
                     <button
                       className={`font-serif text-sm text-muted-foreground transition-opacity hover:text-foreground ${hoveredTask === task._id ? "opacity-100" : "opacity-0"}`}
                     >
