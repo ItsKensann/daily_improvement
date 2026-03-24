@@ -18,9 +18,9 @@ export function TopNav() {
               <Moon className="w-5 h-5 opacity-50" />
             )}
           </button>
-          <button className="p-2 hover:opacity-60 transition-opacity">
+          {/* <button className="p-2 hover:opacity-60 transition-opacity">
             <Settings className="w-5 h-5 opacity-50" />
-          </button>
+          </button> */}
           <button className="p-2 hover:opacity-60 transition-opacity">
             <User className="w-5 h-5 opacity-50" />
           </button>

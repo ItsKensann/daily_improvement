@@ -28,31 +28,26 @@ exports.updateTimer = async (req, res) => {
 };
 
 // @desc    Get dashboard stats for the logged in user
-// @route   GET /api/user/dashboard-stats
+// @route   GET /api/dashboard/stats
 // @access  Private
 exports.getDashboardStats = async (req, res) => {
   try {
-    const userIdStr = req.user.id;
-    // Fix #2: Cast to ObjectId for aggregations
-    const userObjectId = new mongoose.Types.ObjectId(userIdStr);
-
-    // Fix #1: Safe Date handling
+    const userId = req.user.id;
     const now = new Date();
 
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0, 0, 0, 0);
-
-    const startOfWeek = new Date(startOfToday);
-    startOfWeek.setDate(startOfToday.getDate() - 7);
+    // Time boundaries
+    const startOfToday = new Date(now.setHours(0, 0, 0, 0));
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - 7);
 
     // --- FOCUS STATS ---
     const focusSessionsToday = await FocusSession.find({
-      user: userIdStr,
+      user: userId,
       completedAt: { $gte: startOfToday },
     });
 
     const focusSessionsThisWeek = await FocusSession.find({
-      user: userIdStr,
+      user: userId,
       completedAt: { $gte: startOfWeek },
     });
 
@@ -69,14 +64,12 @@ exports.getDashboardStats = async (req, res) => {
     const focusByDay = await FocusSession.aggregate([
       {
         $match: {
-          user: userObjectId, // Using the casted ObjectId!
+          user: userId,
           completedAt: { $gte: startOfWeek },
         },
       },
       {
         $group: {
-          // Note: $dateToString uses UTC. If you notice chart days are off by 1,
-          // you may need to add a timezone offset here later.
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } },
           totalMinutes: { $sum: "$durationMinutes" },
         },
@@ -85,33 +78,32 @@ exports.getDashboardStats = async (req, res) => {
     ]);
 
     // --- TASK STATS ---
-    // Fix #3: Make sure your tasks schema has a 'status' and 'completedAt' field!
     const tasksCompletedToday = await Task.countDocuments({
-      user: userIdStr,
+      user: userId,
       status: "completed",
       completedAt: { $gte: startOfToday },
     });
 
     const tasksCompletedThisWeek = await Task.countDocuments({
-      user: userIdStr,
+      user: userId,
       status: "completed",
       completedAt: { $gte: startOfWeek },
     });
 
     const tasksByCategory = await Task.aggregate([
-      { $match: { user: userObjectId } }, // Casted ObjectId
+      { $match: { user: userId } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
     const tasksByPriority = await Task.aggregate([
-      { $match: { user: userObjectId, status: { $ne: "completed" } } }, // Usually you only want active tasks for priority charts
+      { $match: { user: userId } },
       { $group: { _id: "$priority", count: { $sum: 1 } } },
     ]);
 
     const overdueCount = await Task.countDocuments({
-      user: userIdStr,
+      user: userId,
       status: { $ne: "completed" },
-      dueDate: { $lt: now }, // 'now' is still the exact current time. Perfect.
+      dueDate: { $lt: now },
     });
 
     res.json({
@@ -120,14 +112,14 @@ exports.getDashboardStats = async (req, res) => {
         minutesThisWeek: focusMinutesThisWeek,
         sessionsToday: focusSessionsToday.length,
         sessionsThisWeek: focusSessionsThisWeek.length,
-        byDay: focusByDay,
+        byDay: focusByDay, // [{ _id: "2025-01-01", totalMinutes: 50 }, ...]
       },
       tasks: {
         completedToday: tasksCompletedToday,
         completedThisWeek: tasksCompletedThisWeek,
         overdueCount,
-        byCategory: tasksByCategory,
-        byPriority: tasksByPriority,
+        byCategory: tasksByCategory, // [{ _id: "Coding", count: 3 }, ...]
+        byPriority: tasksByPriority, // [{ _id: "high", count: 2 }, ...]
       },
     });
   } catch (err) {

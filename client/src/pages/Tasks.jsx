@@ -58,6 +58,7 @@ function Tasks() {
         title: "",
         priority: "medium",
         dueDate: dueDate,
+        category: "",
       });
     },
     onError: (err) => {

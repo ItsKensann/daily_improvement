@@ -12,6 +12,16 @@ function Dashboard() {
   const queryClient = useQueryClient();
 
   // query function runs when component is mounted
+  const { data: dashboardStats } = useQuery({
+    queryKey: ["dashboardStats"],
+    queryFn: async () => {
+      const res = await api.get("/api/user/dashboard-stats");
+      console.log(res.data);
+      return res.data;
+    },
+    enabled: !!user,
+  });
+
   const {
     data: tasks = [],
     isLoading,
@@ -34,6 +44,8 @@ function Dashboard() {
     },
     enabled: !!user,
   });
+
+  // mutations
 
   if (loading) {
     // TODO change to loading screen
