@@ -14,12 +14,18 @@ const priorityColors = {
   low: "bg-[#B8B3B2]",
 };
 
+const getLocalTodayString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 function Tasks() {
   const { user } = useContext(AuthContext);
   const [hoveredTask, setHoveredTask] = useState(null);
-  const [dueDate, setDueDate] = useState(
-    new Date().toISOString().split("T")[0],
-  );
+  const [dueDate, setDueDate] = useState(() => getLocalTodayString());
   const [newTask, setNewTask] = useState({
     title: "",
     priority: "medium",
@@ -95,33 +101,31 @@ function Tasks() {
     onSuccess: () => {
       // refetch, update tasks cache
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 
   const todayUpcoming = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const todayStr = getLocalTodayString(); // Changed!
 
     return [
-      {
-        label: "All",
-        count: tasks.length,
-      },
-
+      { label: "All", count: tasks.length },
       {
         label: "Today",
-        count: tasks.filter((task) => task.dueDate?.startsWith(today)).length,
+        count: tasks.filter((task) => task.dueDate?.startsWith(todayStr))
+          .length,
       },
       {
         label: "Upcoming",
         count: tasks.filter(
-          (task) => task.dueDate && task.dueDate.split("T")[0] > today,
+          (task) => task.dueDate && task.dueDate.split("T")[0] > todayStr,
         ).length,
       },
       {
         label: "Past Due",
         count: tasks.filter((task) => {
           const taskDate = task.dueDate?.split("T")[0];
-          return taskDate < today && task.status !== "completed";
+          return taskDate < todayStr && task.status !== "completed";
         }).length,
       },
     ];
@@ -134,7 +138,7 @@ function Tasks() {
 
   // filter tasks
   const filteredTasks = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const todayStr = getLocalTodayString(); // Changed!
 
     return tasks.filter((task) => {
       let matchesView = true;
@@ -142,21 +146,19 @@ function Tasks() {
 
       switch (activeView) {
         case "Today":
-          matchesView = taskDate === today;
+          matchesView = taskDate === todayStr;
           break;
         case "Upcoming":
-          matchesView = taskDate > today;
+          matchesView = taskDate > todayStr;
           break;
         case "Past Due":
-          // Only show if the date is in the past AND it's not finished
-          matchesView = taskDate < today;
+          matchesView = taskDate < todayStr;
           break;
         case "All":
         default:
           matchesView = true;
       }
 
-      // 2. Logic for Categories
       const matchesCategory =
         selectedCategory === null ||
         (task.category || "General") === selectedCategory;
@@ -174,29 +176,26 @@ function Tasks() {
   const incompleteTasks = tasks.filter((task) => task.status !== "complete");
 
   const formatDueDate = (dateStr) => {
-    if (!dateStr) {
-      return null;
-    }
-    const date = new Date(dateStr);
-    const today = new Date();
+    if (!dateStr) return null;
 
-    // Normalize both to midnight
-    const isToday =
-      date.getUTCFullYear() === today.getFullYear() &&
-      date.getUTCMonth() === today.getMonth() &&
-      date.getUTCDate() === today.getDate();
+    // Extract just the YYYY-MM-DD part safely
+    const taskDateStr = dateStr.split("T")[0];
+    const todayStr = getLocalTodayString();
 
-    if (isToday) {
+    if (taskDateStr === todayStr) {
       return "Today";
-    } else if (date < today) {
+    } else if (taskDateStr < todayStr) {
       return "Past Due";
     }
+
+    // Parse securely in local time to avoid off-by-one errors
+    const [year, month, day] = taskDateStr.split("-");
+    const date = new Date(year, month - 1, day);
 
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
-      timeZone: "UTC",
     });
   };
 

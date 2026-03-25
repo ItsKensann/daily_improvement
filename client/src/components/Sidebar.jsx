@@ -38,9 +38,7 @@ export function SideBar() {
           isCollapsed ? "justify-center" : "justify-between px-4"
         }`}
       >
-        <h1 className={isCollapsed ? "hidden" : "font-serif text-lg"}>
-          Kaizen
-        </h1>
+        <h1 className={isCollapsed ? "hidden" : "font-serif text-lg"}>Focus</h1>
         <button
           onClick={toggleSidebar}
           className="text-muted-foreground hover:text-foreground transition-colors"

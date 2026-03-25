@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { TopNav } from "../components/TopNav";
 import { SideBar } from "../components/Sidebar";
+import { MetricCards } from "../components/MetricCards";
 import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
@@ -16,6 +17,7 @@ function Dashboard() {
     queryKey: ["dashboardStats"],
     queryFn: async () => {
       const res = await api.get("/api/user/dashboard-stats");
+      console.log(res.data);
       return res.data;
     },
     enabled: !!user,
@@ -67,7 +69,7 @@ function Dashboard() {
             </p>
           </div>
           {/* Metrics */}
-          <div>{/* {dashboardStats?.tasks?} */}</div>
+          <MetricCards stats={dashboardStats} />
           {/* Weekly chart */}
           <div></div>
 

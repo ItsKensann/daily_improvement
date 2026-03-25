@@ -79,6 +79,7 @@ export default function FocusModePage() {
     onSuccess: () => {
       // refetch, update tasks cache
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 
@@ -291,7 +292,7 @@ export default function FocusModePage() {
     document.title = `${formatTime(timeLeft)} - ${modeLabel}`;
 
     return () => {
-      document.title = "Kaizen - Daily Improvement";
+      document.title = "Focus - Daily Improvement";
     };
   }, [timeLeft, isWorkMode]);
 
