@@ -24,7 +24,6 @@ const TaskSchema = new mongoose.Schema(
     completedAt: { type: Date },
     totalTimeSpent: { type: Number, default: 0 },
 
-    // AI-generated subtasks (hidden by default in UI until expanded)
     aiBreakdown: [
       {
         step: String,

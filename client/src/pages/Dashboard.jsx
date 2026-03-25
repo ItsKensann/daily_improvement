@@ -7,6 +7,7 @@ import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
 import { WeeklyChart } from "../components/WeeklyChart";
+import { TodayTasks } from "../components/TodayTasks";
 
 function Dashboard() {
   const { user, loading } = useContext(AuthContext);
@@ -46,10 +47,6 @@ function Dashboard() {
     return "Good evening";
   };
 
-  // placeholders
-  const briefingCards = [];
-  const weeklyData = [];
-
   return (
     <div className="flex min-h-screen bg-background">
       <SideBar />
@@ -75,7 +72,11 @@ function Dashboard() {
           <WeeklyChart stats={dashboardStats} />
 
           {/* Bottom side */}
-          <div className="mt-12 grid gap-12 lg:grid-cols-2"></div>
+          <div className="mt-12 grid gap-12 lg:grid-cols-2">
+            {/* Today tasks */}
+            {/* <TodayTasks /> */}
+            {/* Daily briefing */}
+          </div>
         </main>
       </div>
     </div>

@@ -40,7 +40,7 @@ export function MetricCards({ stats }) {
   ];
 
   return (
-    <div className="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-20 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric, index) => (
         <div key={index} className="space-y-2">
           <div className="flex items-center gap-2">
