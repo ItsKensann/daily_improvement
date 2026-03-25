@@ -106,7 +106,17 @@ exports.getDashboardStats = async (req, res) => {
       { $group: { _id: "$priority", count: { $sum: 1 } } },
     ]);
 
-    const topTasks = await Task.aggregate([{ $limit: 3 }]);
+    const topTasks = await Task.aggregate([
+      {
+        $match: {
+          user: userObjectId,
+          status: { $ne: "completed" },
+          dueDate: { $lte: endOfToday },
+        },
+      },
+      { $sort: { dueDate: 1 } },
+      { $limit: 3 },
+    ]);
 
     const overdueCount = await Task.countDocuments({
       user: userIdStr,

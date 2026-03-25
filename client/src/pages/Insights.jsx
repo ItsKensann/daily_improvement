@@ -27,21 +27,6 @@ export default function Insights() {
     },
   });
 
-  useEffect(() => {
-    if (
-      !isLoading &&
-      insights.length === 0 &&
-      !generateInsightMutation.isPending
-    ) {
-      const generateInitialInsights = async () => {
-        for (let i = 0; i < 3; i++) {
-          await generateInsightMutation.mutateAsync();
-        }
-      };
-      generateInitialInsights();
-    }
-  }, [insights.length, isLoading]);
-
   const formatTimestamp = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
