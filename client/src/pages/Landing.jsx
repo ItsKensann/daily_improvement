@@ -14,7 +14,8 @@ import { useTheme } from "../context/ThemeContext";
 export default function Landing() {
   // Login logic
   const handleLogin = () => {
-    window.open("http://localhost:5000/auth/google", "_self");
+    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    window.open(`${backendUrl}/auth/google`, "_self");
   };
 
   // Get theme state and toggle function

@@ -9,8 +9,11 @@ module.exports = function (passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:5000/auth/google/callback",
+        callbackURL:
+          process.env.GOOGLE_CALLBACK_URL ||
+          "http://localhost:5000/auth/google/callback",
         scope: ["profile", "email"],
+        proxy: true,
       },
       // run this after google has authenticated the user
       async (accessToken, refreshToken, profile, done) => {
@@ -33,8 +36,8 @@ module.exports = function (passport) {
         } catch (err) {
           console.error(err);
         }
-      }
-    )
+      },
+    ),
   );
 
   // passport uses serializeUser to persist user data
