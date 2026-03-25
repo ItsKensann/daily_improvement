@@ -165,6 +165,7 @@ export default function FocusModePage() {
 
   const playAlarm = () => {
     const audio = new Audio(alarmSound);
+    audio.volume = 0.15;
     audio.play();
   };
 
@@ -390,9 +391,9 @@ export default function FocusModePage() {
                 </select>
               </div>
               <div className="flex items-center justify-between">
-                <label className="font-serif text-sm text-[#a0a0a0]">
+                {/* <label className="font-serif text-sm text-[#a0a0a0]">
                   Volume
-                </label>
+                </label> */}
               </div>
             </div>
             <p className="mt-4 text-xs font-serif text-[#666]">

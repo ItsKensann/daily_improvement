@@ -12,7 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 exports.getDailyInsight = async (req, res) => {
   try {
     const insights = await Insight.find({ user: req.user.id }).sort({
-      createdAt: -1,
+      createdAt: 1,
     });
     res.json(insights);
   } catch (err) {

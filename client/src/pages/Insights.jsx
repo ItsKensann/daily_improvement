@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { Sparkles, Loader2 } from "lucide-react"; // Added Loader2 for button state
+import { Sparkles, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
 import { SideBar } from "../components/Sidebar";
 import { TopNav } from "../components/TopNav";
-import { LoadingSpinner } from "../components/LoadingSpinner"; // Import your new spinner
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Insights() {
   const queryClient = useQueryClient();
@@ -42,12 +42,12 @@ export default function Insights() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       <SideBar />
-
-      <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col h-full">
         <TopNav />
-        <main className="px-6 py-12 md:px-12">
+
+        <main className="flex-1 overflow-y-auto px-6 py-12 md:px-12">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="font-serif text-5xl font-thin text-[#d4d4d4] leading-tight">
