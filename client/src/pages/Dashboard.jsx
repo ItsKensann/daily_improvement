@@ -12,34 +12,10 @@ function Dashboard() {
   const queryClient = useQueryClient();
 
   // query function runs when component is mounted
-  const { data: dashboardStats } = useQuery({
+  const { data: dashboardStats, isLoading } = useQuery({
     queryKey: ["dashboardStats"],
     queryFn: async () => {
       const res = await api.get("/api/user/dashboard-stats");
-      console.log(res.data);
-      return res.data;
-    },
-    enabled: !!user,
-  });
-
-  const {
-    data: tasks = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["tasks"], // name of cache
-    queryFn: async () => {
-      const res = await api.get("/api/tasks");
-      return res.data;
-    },
-    enabled: !!user, // only run if user exists
-  });
-
-  // Fetch Journals
-  const { data: journals = [] } = useQuery({
-    queryKey: ["journals"],
-    queryFn: async () => {
-      const res = await api.get("/api/journals");
       return res.data;
     },
     enabled: !!user,
@@ -77,14 +53,26 @@ function Dashboard() {
       <div className="min-w-0 flex-1">
         <TopNav />
         <main className="px-12 py-8">
+          {/* Greeting */}
           <div className="mb-10 space-y-3">
             <h1 className="font-serif text-3xl tracking-tight text-muted-foreground">
               {getGreeting()}.
             </h1>
             <p className="font-serif text-base text-muted-foreground">
-              Your singular focus today is: <b>focus</b>
+              Your singular focus today is:{" "}
+              <b>
+                {dashboardStats?.tasks?.topTasks?.[0]?.title ??
+                  "No tasks due today"}
+              </b>
             </p>
           </div>
+          {/* Metrics */}
+          <div>{/* {dashboardStats?.tasks?} */}</div>
+          {/* Weekly chart */}
+          <div></div>
+
+          {/* Bottom side */}
+          <div className="mt-12 grid gap-12 lg:grid-cols-2"></div>
         </main>
       </div>
     </div>

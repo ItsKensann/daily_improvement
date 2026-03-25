@@ -6,7 +6,7 @@ const router = express.Router();
 // @route   GET /auth/google
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 // @desc    Google auth callback
@@ -17,7 +17,7 @@ router.get(
   (req, res) => {
     // Successful authentication, redirect to the dashboard
     res.redirect("http://localhost:5173/dashboard");
-  }
+  },
 );
 
 // @desc    Get current logged in user
@@ -32,13 +32,11 @@ router.get("/current_user", (req, res) => {
 });
 
 // @desc    Logout user
-// @route   GET /auth/logout
-router.get("/logout", (req, res, next) => {
+// @route   POST /auth/logout
+router.post("/logout", (req, res, next) => {
   req.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
+    if (err) return next(err);
+    res.sendStatus(200);
   });
 });
 

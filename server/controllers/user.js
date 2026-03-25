@@ -34,14 +34,15 @@ exports.updateTimer = async (req, res) => {
 exports.getDashboardStats = async (req, res) => {
   try {
     const userIdStr = req.user.id;
-    // Fix #2: Cast to ObjectId for aggregations
     const userObjectId = new mongoose.Types.ObjectId(userIdStr);
 
-    // Fix #1: Safe Date handling
     const now = new Date();
 
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setHours(23, 59, 59, 999);
 
     const startOfWeek = new Date(startOfToday);
     startOfWeek.setDate(startOfToday.getDate() - 7);
@@ -76,8 +77,6 @@ exports.getDashboardStats = async (req, res) => {
       },
       {
         $group: {
-          // Note: $dateToString uses UTC. If you notice chart days are off by 1,
-          // you may need to add a timezone offset here later.
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } },
           totalMinutes: { $sum: "$durationMinutes" },
         },
@@ -85,8 +84,6 @@ exports.getDashboardStats = async (req, res) => {
       { $sort: { _id: 1 } },
     ]);
 
-    // --- TASK STATS ---
-    // Fix #3: Make sure your tasks schema has a 'status' and 'completedAt' field!
     const tasksCompletedToday = await Task.countDocuments({
       user: userIdStr,
       status: "completed",
@@ -105,14 +102,16 @@ exports.getDashboardStats = async (req, res) => {
     ]);
 
     const tasksByPriority = await Task.aggregate([
-      { $match: { user: userObjectId, status: { $ne: "completed" } } }, // Usually you only want active tasks for priority charts
+      { $match: { user: userObjectId, status: { $ne: "completed" } } }, // only active tasks
       { $group: { _id: "$priority", count: { $sum: 1 } } },
     ]);
+
+    const topTasks = await Task.aggregate([{ $limit: 3 }]);
 
     const overdueCount = await Task.countDocuments({
       user: userIdStr,
       status: { $ne: "completed" },
-      dueDate: { $lt: now }, // 'now' is still the exact current time. Perfect.
+      dueDate: { $lt: now },
     });
 
     res.json({
@@ -126,6 +125,7 @@ exports.getDashboardStats = async (req, res) => {
       tasks: {
         completedToday: tasksCompletedToday,
         completedThisWeek: tasksCompletedThisWeek,
+        topTasks: topTasks,
         overdueCount,
         byCategory: tasksByCategory,
         byPriority: tasksByPriority,

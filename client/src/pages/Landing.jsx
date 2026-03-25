@@ -89,11 +89,11 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Navigation */}
       <header className="flex items-center justify-between px-8 py-6 lg:px-16">
-        <div className="font-serif text-xl text-foreground">Kaizen</div>
-        <nav className="hidden items-center gap-8 md:flex">
+        <div className="font-serif text-xl text-foreground">Focus</div>
+        {/* <nav className="hidden items-center gap-8 md:flex">
           <a
             href="#features"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -106,7 +106,7 @@ export default function Landing() {
           >
             How it works
           </a>
-        </nav>
+        </nav> */}
         <div className="flex items-center gap-4">
           <button
             onClick={toggleTheme}
@@ -133,10 +133,9 @@ export default function Landing() {
           </button>
         </div>
       </header>
-
       {/* Hero Section */}
       <section className="px-8 pb-24 pt-16 lg:px-16 lg:pt-24">
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-4xl pt-8 text-center">
           <h1 className="text-balance font-serif text-4xl leading-tight text-foreground md:text-5xl lg:text-6xl">
             A sanctuary for
             <br />
@@ -155,18 +154,17 @@ export default function Landing() {
               Start focusing today
               <ArrowRight className="h-4 w-4" />
             </button>
-            <a
+            {/* <a
               href="#features"
               className="inline-flex items-center gap-2 border border-border px-6 py-3 text-sm text-foreground transition-colors hover:border-foreground"
             >
               Explore features
-            </a>
+            </a> */}
           </div>
         </div>
       </section>
-
       {/* Stats Section */}
-      <section className="border-y border-border/50 bg-secondary px-8 py-16 lg:px-16">
+      {/* <section className="border-y border-border/50 bg-secondary px-8 py-16 lg:px-16">
         <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-4">
           {stats.map((stat, i) => (
             <div key={i} className="text-center">
@@ -182,10 +180,9 @@ export default function Landing() {
             </div>
           ))}
         </div>
-      </section>
-
+      </section> */}
       {/* Features Section */}
-      <section id="features" className="px-8 py-24 lg:px-16">
+      {/* <section id="features" className="px-8 py-24 lg:px-16">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -222,10 +219,9 @@ export default function Landing() {
             })}
           </div>
         </div>
-      </section>
-
+      </section> */}
       {/* How it works */}
-      <section
+      {/* <section
         id="how-it-works"
         className="border-y border-border/50 bg-secondary/30 px-8 py-24 lg:px-16"
       >
@@ -255,10 +251,9 @@ export default function Landing() {
             ))}
           </div>
         </div>
-      </section>
-
+      </section> */}
       {/* CTA Section */}
-      <section className="border-t border-border/50 bg-secondary/30 px-8 py-24 lg:px-16">
+      {/* <section className="border-t border-border/50 bg-secondary/30 px-8 py-24 lg:px-16">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-3xl text-foreground md:text-4xl">
             Ready to focus?
@@ -274,14 +269,13 @@ export default function Landing() {
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
-      </section>
-
+      </section> */}
       {/* Footer */}
-      <footer className="border-t border-border/50 px-8 py-12 lg:px-16">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="font-serif text-foreground">Kaizen</div>
+      <footer className="mt-auto border-t border-border/50 px-8 py-12 lg:px-16">
+        <div className="mx-auto flex flex-col items-center justify-between gap-6 md:flex-row">
+          <div className="font-serif text-foreground"></div>
           <div className="flex gap-8">
-            <a
+            {/* <a
               href="#"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -298,10 +292,10 @@ export default function Landing() {
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               Contact
-            </a>
+            </a> */}
           </div>
           <div className="text-xs text-muted-foreground">
-            © 2025 Kaizen. All rights reserved.
+            © 2025 Focus. All rights reserved.
           </div>
         </div>
       </footer>
