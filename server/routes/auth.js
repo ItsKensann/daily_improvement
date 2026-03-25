@@ -16,7 +16,8 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     // Successful authentication, redirect to the dashboard
-    res.redirect("http://localhost:5173/dashboard");
+    // const redirect = process.env.GOOGLE_CALLBACK_URL || "http://localhost:5173/dashboard"
+    res.redirect("https://focus-two-zeta.vercel.app/dashboard");
   },
 );
 
