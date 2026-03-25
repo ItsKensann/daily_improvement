@@ -6,6 +6,7 @@ import { MetricCards } from "../components/MetricCards";
 import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
+import { WeeklyChart } from "../components/WeeklyChart";
 
 function Dashboard() {
   const { user, loading } = useContext(AuthContext);
@@ -71,7 +72,7 @@ function Dashboard() {
           {/* Metrics */}
           <MetricCards stats={dashboardStats} />
           {/* Weekly chart */}
-          <div></div>
+          <WeeklyChart stats={dashboardStats} />
 
           {/* Bottom side */}
           <div className="mt-12 grid gap-12 lg:grid-cols-2"></div>
