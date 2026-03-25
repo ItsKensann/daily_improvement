@@ -6,7 +6,7 @@ import axios from "axios";
   can just write api.get("/api/users")
  */
 const api = axios.create({
-  baseURL: "http://localhost:5000", // Points to the backend
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Points to the backend
   withCredentials: true, // Sends cookies to the backend
 });
 

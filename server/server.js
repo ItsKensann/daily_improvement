@@ -26,12 +26,13 @@ require("./config/passport")(passport);
 
 connectDB();
 const app = express();
+app.set("trust proxy", 1);
 
 // middleware
 app.use(express.json()); // express intercepts incoming requests and parses the JSON string and turn into Javascript object
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite default port
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // Vite default port
     credentials: true, // Important for cookies/sessions
   }),
 );
@@ -47,6 +48,11 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
     }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
   }),
 );
 
